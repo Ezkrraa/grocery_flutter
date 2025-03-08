@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:grocery_flutter/http/social/user_info.dart';
-import 'package:uuid/uuid.dart';
 
 class GroupInfo {
   GroupInfo({
@@ -21,12 +18,7 @@ class GroupInfo {
     return GroupInfo(
       id: json['id'] as String,
       users:
-          users
-              .map(
-                (userInfo) =>
-                    UserInfo(id: userInfo['id'], name: userInfo['name']),
-              )
-              .toList(),
+          users.map((userInfoJson) => UserInfo.fromJson(userInfoJson)).toList(),
       createdAt: DateTime.parse(json['createdAt']),
       owner: json['owner'] as String,
     );

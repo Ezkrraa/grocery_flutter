@@ -1,12 +1,18 @@
 import 'dart:convert';
 
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
+import 'package:grocery_flutter/http/social/invite.dart';
+import 'package:grocery_flutter/http/social/invite_result.dart';
+import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:http/http.dart' as http;
 
 class SocialController {
   static String baseUrl = "http://192.168.1.111:7020";
+  SocialController({required this.jwt});
 
-  static Future<GroupInfo?> getOwnGroup(String jwt) async {
+  final String jwt;
+  Future<GroupInfo?> getOwnGroup() async {
     try {
       final uri = Uri.parse("$baseUrl/api/group");
       final response = await http.get(
@@ -23,6 +29,148 @@ class SocialController {
       return null;
     } catch (error) {
       return null;
+    }
+  }
+
+  Future<UserInfo?> getMyInfo() async {
+    try {
+      final uri = Uri.parse("$baseUrl/api/user");
+      final response = await http.get(
+        uri,
+        headers: {
+          // "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+      );
+      if (response.statusCode == 200) {
+        UserInfo info = UserInfo.fromJson(jsonDecode(response.body));
+        return info;
+      }
+
+      Fluttertoast.showToast(
+        msg:
+            "Status code was ${response.statusCode}, jwt was ${jwt.length} characters long",
+      );
+      return null;
+    } catch (error) {
+      Fluttertoast.showToast(msg: "Error was $error");
+      return null;
+    }
+  }
+
+  Future<List<UserInfo>?> getUsersByName(String name) async {
+    try {
+      final uri = Uri.parse("$baseUrl/api/user/$name");
+      final response = await http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+      );
+      if (response.statusCode == 200) {
+        List<UserInfo> list =
+            (jsonDecode(response.body) as List)
+                .map((e) => UserInfo.fromJson(e))
+                .toList();
+        return list;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  Future<List<Invite>?> getMyInvites() async {
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/my-invites");
+      final response = await http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+      );
+      if (response.statusCode == 200) {
+        List<Invite> list =
+            (jsonDecode(response.body) as List)
+                .map((e) => Invite.fromJson(e))
+                .toList();
+        return list;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  Future<Object> inviteUser(String id) async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/send-invite");
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+        body: '"$id"',
+      );
+      return switch (response.statusCode) {
+        200 => SendInviteSuccess(),
+        400 => SendInviteBadRequest(response.body),
+        401 => SendInviteUnauthorized(response.body),
+        404 => SendInviteNotFound(response.body),
+        409 => SendInviteConflict(response.body),
+        _ => SendInviteError(error: response.body),
+      };
+    } catch (error) {
+      return SendInviteConnectionError(error.toString());
+    }
+  }
+
+  Future<Object> createGroup(String name) async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/create");
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+        body: '{"Name":"$name"}',
+      );
+      return switch (response.statusCode) {
+        200 => SendInviteSuccess(),
+        401 => SendInviteUnauthorized(response.body),
+        409 => SendInviteConflict(response.body),
+        _ => SendInviteError(error: response.body),
+      };
+    } catch (error) {
+      return SendInviteConnectionError(error.toString());
+    }
+  }
+
+  Future<Object> leaveGroup() async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/leave");
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+      );
+      return switch (response.statusCode) {
+        200 => SendInviteSuccess(),
+        401 => SendInviteUnauthorized(response.body),
+        404 => SendInviteNotFound(response.body),
+        _ => SendInviteError(error: response.body),
+      };
+    } catch (error) {
+      return SendInviteConnectionError(error.toString());
     }
   }
 }

@@ -21,4 +21,20 @@ class AuthController {
       return error.toString();
     }
   }
+
+  static Future<bool> isValidToken(String jwt) async {
+    try {
+      final uri = Uri.parse("$baseUrl/api/auth/check-token");
+      final response = await http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $jwt",
+        },
+      );
+      return response.statusCode == 200;
+    } catch (error) {
+      return false;
+    }
+  }
 }

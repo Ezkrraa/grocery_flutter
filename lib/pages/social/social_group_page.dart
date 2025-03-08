@@ -1,0 +1,83 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grocery_flutter/http/social/group_info.dart';
+import 'package:grocery_flutter/http/social/social_controller.dart';
+import 'package:grocery_flutter/pages/social/person_card.dart';
+
+class SocialGroupPage extends StatefulWidget {
+  const SocialGroupPage({super.key});
+
+  @override
+  State<SocialGroupPage> createState() => _SocialGroupPageState();
+}
+
+class _SocialGroupPageState extends State<SocialGroupPage> {
+  late GroupInfo? groupInfo = null;
+
+  @override
+  Widget build(BuildContext context) {
+    var jwt = ModalRoute.of(context)!.settings.arguments as String;
+    SocialController controller = SocialController(jwt: jwt);
+    if (groupInfo == null) {
+      controller.getOwnGroup().then(
+        (value) => setState(() {
+          groupInfo = value;
+        }),
+        onError: (error) {
+          throw Exception(error);
+        },
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings', arguments: jwt);
+            },
+            icon: Icon(Icons.settings),
+          ),
+          IconButton(
+            onPressed: () async {
+              await FlutterSecureStorage().delete(key: 'jwt');
+              Navigator.of(context).popAndPushNamed('/');
+            },
+            icon: Icon(Icons.logout),
+          ),
+        ],
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('Your group'),
+      ),
+      body:
+          groupInfo == null
+              ? Center(child: Text('Nothing to see here :('))
+              : Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                child: ListView(
+                  children: [
+                    Column(
+                      spacing: 10,
+                      children:
+                          groupInfo!.users
+                              .map(
+                                (user) => PersonCard(
+                                  userInfo: user,
+                                  onTap: () {},
+                                  isOwner: user.name == groupInfo!.owner,
+                                ),
+                              )
+                              .toList(),
+                    ),
+                  ],
+                ),
+              ),
+
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.of(context).pushNamed('/invite', arguments: jwt);
+        },
+      ),
+    );
+  }
+}

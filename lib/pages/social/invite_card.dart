@@ -1,27 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_flutter/http/social/invite.dart';
 import 'package:grocery_flutter/http/social/user_info.dart';
 
-class PersonCard extends StatelessWidget {
-  final UserInfo userInfo;
+class InviteCard extends StatelessWidget {
+  final Invite invite;
   final GestureTapCallback onTap;
-  final bool isOwner;
-  const PersonCard({
-    super.key,
-    required this.userInfo,
-    required this.onTap,
-    this.isOwner = false,
-  });
-  static String getDescription(Duration timeDelta) {
-    if (timeDelta.inDays > 1) {
-      return '${timeDelta.inDays - 1} days ago';
-    } else if (timeDelta.inHours > 1) {
-      return '${timeDelta.inHours} hours ago';
-    } else if (timeDelta.inMinutes > 1) {
-      return '${timeDelta.inMinutes} minutes ago';
-    } else {
-      return '${timeDelta.inSeconds} seconds ago';
-    }
-  }
+
+  const InviteCard({super.key, required this.invite, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -38,27 +23,18 @@ class PersonCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Icon(
-              (isOwner || !userInfo.isInGroup
-                  ? Icons.person
-                  : Icons.person_outline),
-              size: 100,
-            ),
-
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  userInfo.name,
+                  invite.groupName,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
 
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: Text(
-                    'Joined ${getDescription(DateTime.now().difference(userInfo.joinedAt))}',
-                  ),
+                  child: Text('Invited at ${invite.createdAt}'),
                 ),
               ],
             ),
