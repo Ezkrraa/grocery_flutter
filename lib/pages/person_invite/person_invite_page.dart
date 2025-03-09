@@ -13,6 +13,7 @@ class PersonInvitePage extends StatefulWidget {
 }
 
 class _PersonInvitePageState extends State<PersonInvitePage> {
+  //TODO: check if someone was already invited
   static String getDescription(Duration timeDelta) {
     if (timeDelta.inDays > 1) {
       return '${timeDelta.inDays - 1} days ago';
@@ -70,7 +71,7 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
               : FilledButton(
                 onPressed: () async {
                   var result = await controller.inviteUser(person.id);
-                  if (result is SendInviteSuccess) {
+                  if (result is RequestSuccess) {
                     setState(() {
                       person = UserInfo(
                         id: person.id,
@@ -79,7 +80,7 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
                         isInGroup: true,
                       );
                     });
-                  } else if (result is SendInviteError) {
+                  } else if (result is RequestError) {
                     Fluttertoast.showToast(msg: result.error);
                   }
                 },

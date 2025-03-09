@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/social/invite_result.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
-import 'package:grocery_flutter/http/user/account_creation_model.dart';
-import 'package:grocery_flutter/http/user/account_creation_result.dart';
-import 'package:grocery_flutter/http/user/user_controller.dart';
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});
@@ -25,13 +22,16 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   submitGroup(SocialController controller) async {
     var result = await controller.createGroup(passwordController.text);
     if (mounted) {
-      if (result is SendInviteSuccess) {
+      if (result is RequestSuccess) {
         Fluttertoast.showToast(msg: "Created a group successfully");
         Navigator.of(context).pop();
-      } else if (result is FailureResult) {
+      } else if (result is RequestError) {
         Fluttertoast.showToast(
           toastLength: Toast.LENGTH_LONG,
-          msg: result.reason,
+          msg:
+              result.error.isEmpty
+                  ? 'Error: ${result.errorType()}'
+                  : result.error,
         );
       }
     }

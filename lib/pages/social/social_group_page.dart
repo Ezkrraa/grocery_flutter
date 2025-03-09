@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
+import 'package:grocery_flutter/pages/sent_invites_page.dart/sent_invites_args.dart';
 import 'package:grocery_flutter/pages/social/person_card.dart';
 
 class SocialGroupPage extends StatefulWidget {
@@ -31,6 +32,15 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+            onPressed: () async {
+              Navigator.of(context).pushNamed(
+                '/sent-invites',
+                arguments: SentInvitesArgs(jwt: jwt, isInGroup: true),
+              );
+            },
+            icon: Icon(Icons.person),
+          ),
           IconButton(
             onPressed: () {
               Navigator.of(context).pushNamed('/settings', arguments: jwt);

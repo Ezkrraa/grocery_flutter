@@ -104,6 +104,30 @@ class SocialController {
     }
   }
 
+  Future<List<Invite>?> getSentInvites() async {
+    // TODO: build this
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/sent-invites");
+      final response = await http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+      );
+      if (response.statusCode == 200) {
+        List<Invite> list =
+            (jsonDecode(response.body) as List)
+                .map((e) => Invite.fromJson(e))
+                .toList();
+        return list;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   Future<Object> inviteUser(String id) async {
     assert(jwt != '');
     try {
@@ -117,15 +141,15 @@ class SocialController {
         body: '"$id"',
       );
       return switch (response.statusCode) {
-        200 => SendInviteSuccess(),
-        400 => SendInviteBadRequest(response.body),
-        401 => SendInviteUnauthorized(response.body),
-        404 => SendInviteNotFound(response.body),
-        409 => SendInviteConflict(response.body),
-        _ => SendInviteError(error: response.body),
+        200 => RequestSuccess(),
+        400 => RequestErrorBadRequest(response.body),
+        401 => RequestErrorUnauthorized(response.body),
+        404 => RequestErrorNotFound(response.body),
+        409 => RequestErrorConflict(response.body),
+        _ => RequestError(error: response.body),
       };
     } catch (error) {
-      return SendInviteConnectionError(error.toString());
+      return RequestErrorConnectionError(error.toString());
     }
   }
 
@@ -142,13 +166,13 @@ class SocialController {
         body: '{"Name":"$name"}',
       );
       return switch (response.statusCode) {
-        200 => SendInviteSuccess(),
-        401 => SendInviteUnauthorized(response.body),
-        409 => SendInviteConflict(response.body),
-        _ => SendInviteError(error: response.body),
+        200 => RequestSuccess(),
+        401 => RequestErrorUnauthorized(response.body),
+        409 => RequestErrorConflict(response.body),
+        _ => RequestError(error: response.body),
       };
     } catch (error) {
-      return SendInviteConnectionError(error.toString());
+      return RequestErrorConnectionError(error.toString());
     }
   }
 
@@ -164,13 +188,103 @@ class SocialController {
         },
       );
       return switch (response.statusCode) {
-        200 => SendInviteSuccess(),
-        401 => SendInviteUnauthorized(response.body),
-        404 => SendInviteNotFound(response.body),
-        _ => SendInviteError(error: response.body),
+        200 => RequestSuccess(),
+        401 => RequestErrorUnauthorized(response.body),
+        404 => RequestErrorNotFound(response.body),
+        _ => RequestError(error: response.body),
       };
     } catch (error) {
-      return SendInviteConnectionError(error.toString());
+      return RequestErrorConnectionError(error.toString());
+    }
+  }
+
+  Future<Object> retractInvite(Invite invite) async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/retract-invite");
+      final response = await http.patch(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+        body: invite.toJson(),
+      );
+      return switch (response.statusCode) {
+        200 => RequestSuccess(),
+        400 => RequestErrorBadRequest(response.body),
+        401 => RequestErrorUnauthorized(response.body),
+        404 => RequestErrorNotFound(response.body),
+        409 => RequestErrorConflict(response.body),
+        _ => RequestError(
+          error:
+              response.body == ''
+                  ? "No body, status code ${response.statusCode}"
+                  : response.body,
+        ),
+      };
+    } catch (error) {
+      return RequestErrorConnectionError(error.toString());
+    }
+  }
+
+  Future<Object> acceptInvite(Invite invite) async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/accept-invite");
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+        body: invite.toJson(),
+      );
+      return switch (response.statusCode) {
+        200 => RequestSuccess(),
+        400 => RequestErrorBadRequest(response.body),
+        401 => RequestErrorUnauthorized(response.body),
+        404 => RequestErrorNotFound(response.body),
+        409 => RequestErrorConflict(response.body),
+        _ => RequestError(
+          error:
+              response.body == ''
+                  ? "No body, status code ${response.statusCode}"
+                  : response.body,
+        ),
+      };
+    } catch (error) {
+      return RequestErrorConnectionError(error.toString());
+    }
+  }
+
+  Future<Object> rejectInvite(Invite invite) async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/deny-invite");
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+        body: invite.toJson(),
+      );
+      return switch (response.statusCode) {
+        200 => RequestSuccess(),
+        400 => RequestErrorBadRequest(response.body),
+        401 => RequestErrorUnauthorized(response.body),
+        404 => RequestErrorNotFound(response.body),
+        409 => RequestErrorConflict(response.body),
+        _ => RequestError(
+          error:
+              response.body == ''
+                  ? "No body, status code ${response.statusCode}"
+                  : response.body,
+        ),
+      };
+    } catch (error) {
+      return RequestErrorConnectionError(error.toString());
     }
   }
 }

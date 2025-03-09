@@ -1,28 +1,45 @@
-sealed class SendInviteResult {}
+sealed class RequestResult {}
 
-class SendInviteSuccess implements SendInviteResult {}
+class RequestSuccess implements RequestResult {}
 
-class SendInviteError extends SendInviteResult {
+class RequestError extends RequestResult {
   final String error;
-  SendInviteError({required this.error});
+  RequestError({required this.error});
+
+  String errorType() => 'Generic';
 }
 
-class SendInviteUnauthorized extends SendInviteError {
-  SendInviteUnauthorized(String error) : super(error: error);
+class RequestErrorUnauthorized extends RequestError {
+  RequestErrorUnauthorized(String error) : super(error: error);
+
+  @override
+  String errorType() => 'Unauthorized';
 }
 
-class SendInviteConflict extends SendInviteError {
-  SendInviteConflict(String error) : super(error: error);
+class RequestErrorConflict extends RequestError {
+  RequestErrorConflict(String error) : super(error: error);
+
+  @override
+  String errorType() => 'Conflict';
 }
 
-class SendInviteNotFound extends SendInviteError {
-  SendInviteNotFound(String error) : super(error: error);
+class RequestErrorNotFound extends RequestError {
+  RequestErrorNotFound(String error) : super(error: error);
+
+  @override
+  String errorType() => 'NotFound';
 }
 
-class SendInviteBadRequest extends SendInviteError {
-  SendInviteBadRequest(String error) : super(error: error);
+class RequestErrorBadRequest extends RequestError {
+  RequestErrorBadRequest(String error) : super(error: error);
+
+  @override
+  String errorType() => 'BadRequest';
 }
 
-class SendInviteConnectionError extends SendInviteError {
-  SendInviteConnectionError(String error) : super(error: error);
+class RequestErrorConnectionError extends RequestError {
+  RequestErrorConnectionError(String error) : super(error: error);
+
+  @override
+  String errorType() => 'ConnectionError';
 }

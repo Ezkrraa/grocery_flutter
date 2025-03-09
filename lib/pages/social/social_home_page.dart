@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
 import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:grocery_flutter/pages/social/social_group_page.dart';
-import 'package:grocery_flutter/pages/social/view_invites_page.dart';
+import 'package:grocery_flutter/pages/invite/received_invites_page.dart';
 
 class SocialHomePage extends StatefulWidget {
   const SocialHomePage({super.key});
@@ -24,7 +24,7 @@ class _SocialHomePageState extends State<SocialHomePage> {
     } else if (status == 1) {
       return SocialGroupPage();
     } else {
-      return ViewInvitesPage();
+      return ReceivedInvitesPage();
     }
   }
 

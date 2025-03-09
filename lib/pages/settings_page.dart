@@ -42,10 +42,10 @@ class _SettingsPageState extends State<SettingsPage> {
               if (mounted) {
                 var controller = SocialController(jwt: jwt);
                 var result = await controller.leaveGroup();
-                if (result is SendInviteSuccess) {
+                if (result is RequestSuccess) {
                   Fluttertoast.showToast(msg: "Left your group");
                   Navigator.of(context).pop();
-                } else if (result is SendInviteError) {
+                } else if (result is RequestError) {
                   Fluttertoast.showToast(
                     msg: "Failed because '${result.error}'",
                   );

@@ -4,14 +4,14 @@ import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:grocery_flutter/pages/person_invite/person_invite_args.dart';
 import 'package:grocery_flutter/pages/social/person_card.dart';
 
-class InvitePage extends StatefulWidget {
-  const InvitePage({super.key});
+class SendInvitePage extends StatefulWidget {
+  const SendInvitePage({super.key});
 
   @override
-  State<InvitePage> createState() => _InvitePageState();
+  State<SendInvitePage> createState() => _SendInvitePageState();
 }
 
-class _InvitePageState extends State<InvitePage> {
+class _SendInvitePageState extends State<SendInvitePage> {
   // will NOT work if not initialized to null
   late List<UserInfo>? foundUsers = null;
   final searchController = TextEditingController();
