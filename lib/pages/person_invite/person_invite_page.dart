@@ -13,7 +13,7 @@ class PersonInvitePage extends StatefulWidget {
 }
 
 class _PersonInvitePageState extends State<PersonInvitePage> {
-  //TODO: check if someone was already invited
+  late bool? isInvited = null;
   static String getDescription(Duration timeDelta) {
     if (timeDelta.inDays > 1) {
       return '${timeDelta.inDays - 1} days ago';
@@ -31,6 +31,29 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
     final args = ModalRoute.of(context)!.settings.arguments as PersonInviteArgs;
     var person = args.person;
     SocialController controller = SocialController(jwt: args.jwt);
+    if (isInvited == null) {
+      controller
+          .isInvited(person.id)
+          .then(
+            (result) => {
+              if (result is RequestSuccess<bool>)
+                {
+                  setState(() {
+                    isInvited = result.result;
+                  }),
+                }
+              else if (result is RequestError<bool>)
+                {
+                  Fluttertoast.showToast(
+                    msg:
+                        result.error.isEmpty
+                            ? result.errorType()
+                            : result.error,
+                  ),
+                },
+            },
+          );
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -65,27 +88,35 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
           person.isInGroup
               ? FilledButton(
                 onPressed: null,
-                style: Theme.of(context).filledButtonTheme.style,
                 child: Text("Person is already in a group."),
               )
-              : FilledButton(
-                onPressed: () async {
-                  var result = await controller.inviteUser(person.id);
-                  if (result is RequestSuccess) {
-                    setState(() {
-                      person = UserInfo(
-                        id: person.id,
-                        name: person.name,
-                        joinedAt: person.joinedAt,
-                        isInGroup: true,
-                      );
-                    });
-                  } else if (result is RequestError) {
-                    Fluttertoast.showToast(msg: result.error);
-                  }
-                },
-                child: Text("Invite"),
-              ),
+              : isInvited == null
+              ? CircularProgressIndicator()
+              : (isInvited!
+                  ? FilledButton(
+                    onPressed: null,
+                    style: Theme.of(context).filledButtonTheme.style,
+                    child: Text("Person was invited"),
+                  )
+                  : FilledButton(
+                    onPressed: () async {
+                      var result = await controller.inviteUser(person.id);
+                      if (result is RequestSuccess) {
+                        setState(() {
+                          person = UserInfo(
+                            id: person.id,
+                            name: person.name,
+                            joinedAt: person.joinedAt,
+                            isInGroup: true,
+                          );
+                          isInvited = true;
+                        });
+                      } else if (result is RequestError) {
+                        Fluttertoast.showToast(msg: result.error);
+                      }
+                    },
+                    child: Text("Invite"),
+                  )),
         ],
       ),
     );

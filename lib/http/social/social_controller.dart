@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:core';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
@@ -105,7 +106,6 @@ class SocialController {
   }
 
   Future<List<Invite>?> getSentInvites() async {
-    // TODO: build this
     try {
       final uri = Uri.parse("$baseUrl/api/group/sent-invites");
       final response = await http.get(
@@ -128,7 +128,7 @@ class SocialController {
     }
   }
 
-  Future<Object> inviteUser(String id) async {
+  Future<RequestResult<void>> inviteUser(String id) async {
     assert(jwt != '');
     try {
       final uri = Uri.parse("$baseUrl/api/group/send-invite");
@@ -141,7 +141,7 @@ class SocialController {
         body: '"$id"',
       );
       return switch (response.statusCode) {
-        200 => RequestSuccess(),
+        200 => RequestSuccess(result: null),
         400 => RequestErrorBadRequest(response.body),
         401 => RequestErrorUnauthorized(response.body),
         404 => RequestErrorNotFound(response.body),
@@ -153,7 +153,7 @@ class SocialController {
     }
   }
 
-  Future<Object> createGroup(String name) async {
+  Future<RequestResult<void>> createGroup(String name) async {
     assert(jwt != '');
     try {
       final uri = Uri.parse("$baseUrl/api/group/create");
@@ -166,7 +166,7 @@ class SocialController {
         body: '{"Name":"$name"}',
       );
       return switch (response.statusCode) {
-        200 => RequestSuccess(),
+        200 => RequestSuccess(result: null),
         401 => RequestErrorUnauthorized(response.body),
         409 => RequestErrorConflict(response.body),
         _ => RequestError(error: response.body),
@@ -176,7 +176,7 @@ class SocialController {
     }
   }
 
-  Future<Object> leaveGroup() async {
+  Future<RequestResult<void>> leaveGroup() async {
     assert(jwt != '');
     try {
       final uri = Uri.parse("$baseUrl/api/group/leave");
@@ -188,7 +188,7 @@ class SocialController {
         },
       );
       return switch (response.statusCode) {
-        200 => RequestSuccess(),
+        200 => RequestSuccess(result: null),
         401 => RequestErrorUnauthorized(response.body),
         404 => RequestErrorNotFound(response.body),
         _ => RequestError(error: response.body),
@@ -198,7 +198,7 @@ class SocialController {
     }
   }
 
-  Future<Object> retractInvite(Invite invite) async {
+  Future<RequestResult<void>> retractInvite(Invite invite) async {
     assert(jwt != '');
     try {
       final uri = Uri.parse("$baseUrl/api/group/retract-invite");
@@ -211,7 +211,7 @@ class SocialController {
         body: invite.toJson(),
       );
       return switch (response.statusCode) {
-        200 => RequestSuccess(),
+        200 => RequestSuccess(result: null),
         400 => RequestErrorBadRequest(response.body),
         401 => RequestErrorUnauthorized(response.body),
         404 => RequestErrorNotFound(response.body),
@@ -228,7 +228,7 @@ class SocialController {
     }
   }
 
-  Future<Object> acceptInvite(Invite invite) async {
+  Future<RequestResult<void>> acceptInvite(Invite invite) async {
     assert(jwt != '');
     try {
       final uri = Uri.parse("$baseUrl/api/group/accept-invite");
@@ -241,7 +241,7 @@ class SocialController {
         body: invite.toJson(),
       );
       return switch (response.statusCode) {
-        200 => RequestSuccess(),
+        200 => RequestSuccess(result: null),
         400 => RequestErrorBadRequest(response.body),
         401 => RequestErrorUnauthorized(response.body),
         404 => RequestErrorNotFound(response.body),
@@ -258,7 +258,7 @@ class SocialController {
     }
   }
 
-  Future<Object> rejectInvite(Invite invite) async {
+  Future<RequestResult<void>> rejectInvite(Invite invite) async {
     assert(jwt != '');
     try {
       final uri = Uri.parse("$baseUrl/api/group/deny-invite");
@@ -271,7 +271,7 @@ class SocialController {
         body: invite.toJson(),
       );
       return switch (response.statusCode) {
-        200 => RequestSuccess(),
+        200 => RequestSuccess(result: null),
         400 => RequestErrorBadRequest(response.body),
         401 => RequestErrorUnauthorized(response.body),
         404 => RequestErrorNotFound(response.body),
@@ -285,6 +285,36 @@ class SocialController {
       };
     } catch (error) {
       return RequestErrorConnectionError(error.toString());
+    }
+  }
+
+  Future<RequestResult<bool>> isInvited(String id) async {
+    assert(jwt != '');
+    try {
+      final uri = Uri.parse("$baseUrl/api/group/is-invited/$id");
+      final response = await http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer $jwt',
+        },
+      );
+      return switch (response.statusCode) {
+            200 => RequestSuccess(result: response.body == "true"),
+            400 => RequestErrorBadRequest(response.body),
+            401 => RequestErrorUnauthorized(response.body),
+            404 => RequestErrorNotFound(response.body),
+            409 => RequestErrorConflict(response.body),
+            _ => RequestError(
+              error:
+                  response.body == ''
+                      ? "No body, status code ${response.statusCode}"
+                      : response.body,
+            ),
+          }
+          as RequestResult<bool>;
+    } catch (error) {
+      return RequestError<bool>(error: error.toString());
     }
   }
 }
