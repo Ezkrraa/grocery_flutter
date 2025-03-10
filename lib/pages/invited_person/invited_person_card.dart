@@ -38,10 +38,7 @@ class InvitedPersonCard extends StatelessWidget {
                 child: Text('Invited at ${invite.createdAt}'),
               ),
               Text('Expires at ${invite.expiresAt}'),
-              FilledButton(
-                onPressed: onRetract,
-                child: const Text("Retract invite"),
-              ),
+              FilledButton(onPressed: onRetract, child: const Text("Uninvite")),
             ],
           ),
         ],
