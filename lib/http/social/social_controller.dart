@@ -4,7 +4,7 @@ import 'dart:core';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
 import 'package:grocery_flutter/http/social/invite.dart';
-import 'package:grocery_flutter/http/social/invite_result.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:http/http.dart' as http;
 

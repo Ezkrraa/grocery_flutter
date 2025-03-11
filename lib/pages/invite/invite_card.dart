@@ -31,11 +31,7 @@ class InviteCard extends StatelessWidget {
             invite.groupName,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Text('Invited at ${invite.createdAt}'),
-          ),
+          Text('Invited at ${invite.createdAt}'),
           Text('Expires at ${invite.expiresAt}'),
           Text('Group has ${invite.groupMemberCount} members'),
           Row(

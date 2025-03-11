@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Login page'),
+        title: const Text('Login page'),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 150, horizontal: 20),
@@ -93,13 +93,13 @@ class _LoginPageState extends State<LoginPage> {
                     ).popAndPushNamed('/home', arguments: jwt);
                   }
                 },
-                child: Text('Login'),
+                child: const Text('Login'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed('/create-account');
                 },
-                child: Text('Create account'),
+                child: const Text('Create account'),
               ),
             ],
           ),

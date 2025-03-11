@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grocery_flutter/pages/create_account_page.dart';
+import 'package:grocery_flutter/pages/grocery_list_info/grocery_list_info_page.dart';
 import 'package:grocery_flutter/pages/invite/send_invite_page.dart';
 import 'package:grocery_flutter/pages/sent_invites_page.dart/sent_invites_page.dart';
 import 'package:grocery_flutter/pages/load_redirect_page.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/invite-person': (context) => const PersonInvitePage(),
         '/sent-invites': (context) => const SentInvitesPage(),
         '/settings': (context) => const SettingsPage(),
+        '/view-grocery-list': (context) => const GroceryListInfoPage(),
       },
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:grocery_flutter/http/social/invite_result.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 }
               }
             },
-            child: Text('Leave group'),
+            child: const Text('Leave group'),
           ),
         ],
       ),

@@ -56,11 +56,11 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
           ),
         ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Your group'),
+        title: const Text('Your group'),
       ),
       body:
           groupInfo == null
-              ? Center(child: Text('Nothing to see here :('))
+              ? Center(child: const Text('Nothing to see here :('))
               : Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 child: ListView(

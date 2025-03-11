@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:grocery_flutter/http/social/invite_result.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
 import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:grocery_flutter/pages/person_invite/person_invite_args.dart';
@@ -15,14 +15,16 @@ class PersonInvitePage extends StatefulWidget {
 class _PersonInvitePageState extends State<PersonInvitePage> {
   late bool? isInvited = null;
   static String getDescription(Duration timeDelta) {
-    if (timeDelta.inDays > 1) {
-      return '${timeDelta.inDays - 1} days ago';
-    } else if (timeDelta.inHours > 1) {
-      return '${timeDelta.inHours} hours ago';
-    } else if (timeDelta.inMinutes > 1) {
-      return '${timeDelta.inMinutes} minutes ago';
+    if (timeDelta.inDays > 365) {
+      return '${(timeDelta.inDays / 365).floor()} year${(timeDelta.inDays / 365).floor() > 1 ? "s" : ""} ago';
+    } else if (timeDelta.inDays > 0) {
+      return '${timeDelta.inDays} day${timeDelta.inDays > 1 ? "s" : ""} ago';
+    } else if (timeDelta.inHours > 0) {
+      return '${timeDelta.inHours} hour${timeDelta.inHours > 1 ? "s" : ""} ago';
+    } else if (timeDelta.inMinutes > 0) {
+      return '${timeDelta.inMinutes} minute${timeDelta.inMinutes > 1 ? "s" : ""} ago';
     } else {
-      return '${timeDelta.inSeconds} seconds ago';
+      return '${timeDelta.inSeconds} second${timeDelta.inSeconds > 1 ? "s" : ""} ago';
     }
   }
 
@@ -57,7 +59,7 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text("View user"),
+        title: const Text("View user"),
       ),
       body: Column(
         children: [
@@ -96,7 +98,7 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
                   ? FilledButton(
                     onPressed: null,
                     style: Theme.of(context).filledButtonTheme.style,
-                    child: Text("Person was invited"),
+                    child: const Text("Person was invited"),
                   )
                   : FilledButton(
                     onPressed: () async {
@@ -115,7 +117,7 @@ class _PersonInvitePageState extends State<PersonInvitePage> {
                         Fluttertoast.showToast(msg: result.error);
                       }
                     },
-                    child: Text("Invite"),
+                    child: const Text("Invite"),
                   )),
         ],
       ),

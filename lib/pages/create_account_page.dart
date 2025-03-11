@@ -48,7 +48,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Login page'),
+        title: const Text('Login page'),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 150, horizontal: 20),
@@ -100,7 +100,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 ),
               ),
 
-              FilledButton(onPressed: submitForm, child: Text('Submit')),
+              FilledButton(onPressed: submitForm, child: const Text('Submit')),
             ],
           ),
         ),

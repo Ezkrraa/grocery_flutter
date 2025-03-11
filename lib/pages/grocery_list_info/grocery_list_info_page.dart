@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grocery_flutter/http/grocery-list/grocery_list_controller.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
+import 'package:grocery_flutter/pages/grocery_list_info/category_view.dart';
+import 'package:grocery_flutter/pages/grocery_list_info/grocery_list_info_args.dart';
+import 'package:grocery_flutter/pages/grocery_lists/grocery_list_item_display.dart';
+
+class GroceryListInfoPage extends StatefulWidget {
+  const GroceryListInfoPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _GroceryListInfoPageState();
+}
+
+class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
+  late Map<String, List<GroceryListItemDisplay>>? items = null;
+
+  Map<String, List<GroceryListItemDisplay>> sortInBuckets(
+    List<GroceryListItemDisplay> items,
+  ) {
+    Map<String, List<GroceryListItemDisplay>> out = {};
+    for (var item in items) {
+      if (out[item.categoryName] == null) {
+        out[item.categoryName] = [item];
+      } else {
+        out[item.categoryName]?.add(item);
+      }
+    }
+    return out;
+  }
+
+  refresh(GroceryListController controller, GroceryListInfoArgs args) {
+    controller.getListInfo(args.list.listId).then((value) {
+      if (value is RequestSuccess<List<GroceryListItemDisplay>?>) {
+        setState(() {
+          items = sortInBuckets((value as RequestSuccess).result);
+        });
+      } else if (value is RequestError<List<GroceryListItemDisplay>>) {
+        Fluttertoast.showToast(msg: (value as RequestError).error);
+      } else {
+        Fluttertoast.showToast(msg: "Returned value of unknown type");
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as GroceryListInfoArgs;
+    GroceryListController controller = GroceryListController(jwt: args.jwt);
+    if (items == null) refresh(controller, args);
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Grocery list"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              var result = await controller.deleteList(args.list.listId);
+              if (result is RequestSuccess) {
+                Navigator.of(context).popAndPushNamed('/home');
+              } else if (result is RequestError) {
+                Fluttertoast.showToast(msg: result.toString());
+              } else {
+                Fluttertoast.showToast(msg: result.toString());
+              }
+            },
+            icon: Icon(Icons.delete),
+          ),
+        ],
+      ),
+      body: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(10),
+        children: [
+          Column(
+            spacing: 14,
+            children:
+                items == null
+                    ? const <Widget>[Center(child: Text("WIP"))]
+                    : items!.entries
+                        .map((entry) => CategoryView(items: entry))
+                        .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}

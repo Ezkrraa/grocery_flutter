@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:grocery_flutter/pages/grocery_lists_page.dart';
-import 'package:grocery_flutter/pages/recipes_page.dart';
+import 'package:grocery_flutter/pages/grocery_lists/grocery_lists_page.dart';
+import 'package:grocery_flutter/pages/recipes/recipes_page.dart';
 import 'package:grocery_flutter/pages/social/social_home_page.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -11,7 +11,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int currentIndex = 0;
+  int currentIndex = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       body: switch (currentIndex) {
-        0 => const GroceryListsPage(),
+        0 => const ViewGroceryListsPage(),
         1 => const RecipesPage(),
         2 => const SocialHomePage(),
         _ => const Align(
