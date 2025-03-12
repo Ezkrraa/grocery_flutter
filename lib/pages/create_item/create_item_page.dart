@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grocery_flutter/http/item/create_item_model.dart';
+import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
-import 'package:grocery_flutter/http/social/social_controller.dart';
+import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
 
-class CreateGroupPage extends StatefulWidget {
-  const CreateGroupPage({super.key});
+class CreateItemPage extends StatefulWidget {
+  const CreateItemPage({super.key});
 
   @override
-  State<CreateGroupPage> createState() => _CreateGroupPageState();
+  State<CreateItemPage> createState() => _CreateItemPageState();
 }
 
-class _CreateGroupPageState extends State<CreateGroupPage> {
-  TextEditingController groupNameController = TextEditingController();
-
+class _CreateItemPageState extends State<CreateItemPage> {
+  TextEditingController itemNameController = TextEditingController();
   isEmptyValidator(value) {
     return value == null || value.isEmpty ? "Please enter a value" : null;
   }
 
-  submitGroup(SocialController controller) async {
-    var result = await controller.createGroup(groupNameController.text);
+  submitItem(ItemController controller, CreateItemModel item) async {
+    var result = await controller.createItem(item);
     if (mounted) {
       if (result is RequestSuccess) {
-        Fluttertoast.showToast(msg: "Created a group successfully");
         Navigator.of(context).pop();
       } else if (result is RequestError) {
         Fluttertoast.showToast(
@@ -37,13 +37,13 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final jwt = ModalRoute.of(context)!.settings.arguments as String;
-    final controller = SocialController(jwt: jwt);
+    final args = ModalRoute.of(context)!.settings.arguments as CreateItemArgs;
+    final controller = ItemController(jwt: args.jwt);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Login page'),
+        title: Text('Create new item'),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 150, horizontal: 20),
@@ -52,23 +52,37 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             Row(
               children: [
                 Text(
-                  'Enter a group name:',
+                  'Enter a name:',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ],
             ),
             TextFormField(
               enableSuggestions: false,
-              controller: groupNameController,
+              controller: itemNameController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: "Group name",
+                labelText: "Item name",
               ),
               validator: (value) => isEmptyValidator(value),
             ),
             FilledButton(
-              onPressed: () => submitGroup(controller),
+              onPressed:
+                  () => submitItem(
+                    controller,
+                    CreateItemModel(
+                      categoryId: args.categoryId,
+                      name: itemNameController.text,
+                    ),
+                  ),
+
               child: Text('Create'),
+            ),
+            Text(
+              CreateItemModel(
+                categoryId: args.categoryId,
+                name: itemNameController.text,
+              ).toJson(),
             ),
           ],
         ),

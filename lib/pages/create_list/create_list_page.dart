@@ -2,8 +2,10 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grocery_flutter/http/grocery-list/grocery_list_controller.dart';
 import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
+import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
 import 'package:grocery_flutter/pages/create_list/category_model.dart';
 
 class CreateListPage extends StatefulWidget {
@@ -19,25 +21,28 @@ class _CreateListPageState extends State<CreateListPage> {
   final CarouselSliderController carouselController =
       CarouselSliderController();
 
+  refresh(ItemController controller) {
+    var result = controller.getItemsInGroup();
+    result.then((value) {
+      if (value is RequestSuccess) {
+        value = value as RequestSuccess<List<CategoryModel>?>;
+        setState(() {
+          items = (value as RequestSuccess).result;
+        });
+      } else if (value is RequestError) {
+        Fluttertoast.showToast(msg: (value as RequestError).error);
+      } else {
+        Fluttertoast.showToast(msg: "Invalid type");
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final jwt = ModalRoute.of(context)!.settings.arguments as String;
     ItemController controller = ItemController(jwt: jwt);
-
     if (items == null) {
-      var result = controller.getItemsInGroup();
-      result.then((value) {
-        if (value is RequestSuccess) {
-          value = value as RequestSuccess<List<CategoryModel>?>;
-          setState(() {
-            items = (value as RequestSuccess).result;
-          });
-        } else if (value is RequestError) {
-          Fluttertoast.showToast(msg: (value as RequestError).error);
-        } else {
-          Fluttertoast.showToast(msg: "Invalid type");
-        }
-      });
+      refresh(controller);
     }
     return Scaffold(
       appBar: AppBar(
@@ -62,7 +67,7 @@ class _CreateListPageState extends State<CreateListPage> {
                       carouselController: carouselController,
                       items:
                           items!
-                              .map(
+                              .map<Widget>(
                                 (category) => Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                   child: Container(
@@ -94,7 +99,18 @@ class _CreateListPageState extends State<CreateListPage> {
                                             ),
                                             Spacer(),
                                             IconButton(
-                                              onPressed: () {},
+                                              onPressed: () async {
+                                                await Navigator.of(
+                                                  context,
+                                                ).pushNamed(
+                                                  '/create-item',
+                                                  arguments: CreateItemArgs(
+                                                    jwt: jwt,
+                                                    categoryId: category.id,
+                                                  ),
+                                                );
+                                                refresh(controller);
+                                              },
                                               icon: Icon(Icons.add),
                                             ),
                                           ],
@@ -102,7 +118,7 @@ class _CreateListPageState extends State<CreateListPage> {
                                         Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
-                                          spacing: 4,
+                                          spacing: 8,
                                           children:
                                               category.items.isNotEmpty
                                                   ? category.items
@@ -110,11 +126,21 @@ class _CreateListPageState extends State<CreateListPage> {
                                                         (item) => Container(
                                                           decoration: ShapeDecoration(
                                                             color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .primaryContainer,
+                                                                item.quantity ==
+                                                                        0
+                                                                    ? Theme.of(
+                                                                          context,
+                                                                        )
+                                                                        .colorScheme
+                                                                        .onSecondary
+                                                                    : (item.quantity ==
+                                                                            1
+                                                                        ? Theme.of(
+                                                                          context,
+                                                                        ).colorScheme.secondaryContainer
+                                                                        : Theme.of(
+                                                                          context,
+                                                                        ).colorScheme.primaryContainer),
                                                             shape: RoundedRectangleBorder(
                                                               borderRadius:
                                                                   BorderRadius.circular(
@@ -172,7 +198,7 @@ class _CreateListPageState extends State<CreateListPage> {
                                                                   backgroundColor:
                                                                       Theme.of(
                                                                         context,
-                                                                      ).colorScheme.onPrimaryContainer,
+                                                                      ).colorScheme.secondary,
                                                                 ),
                                                                 onPressed: () {
                                                                   setState(() {
@@ -194,10 +220,14 @@ class _CreateListPageState extends State<CreateListPage> {
                                                               Padding(
                                                                 padding:
                                                                     EdgeInsets.only(
-                                                                      left: 10,
+                                                                      left: 5,
                                                                     ),
                                                                 child: Text(
                                                                   item.name,
+                                                                  style:
+                                                                      Theme.of(
+                                                                        context,
+                                                                      ).textTheme.headlineSmall,
                                                                 ),
                                                               ),
                                                             ],
@@ -211,12 +241,6 @@ class _CreateListPageState extends State<CreateListPage> {
                                                         "No items are in this category yet :[",
                                                       ),
                                                     ),
-                                                    // TextButton(
-                                                    //   onPressed:
-                                                    //       () => carouselController
-                                                    //           .animateToPage(5),
-                                                    //   child: Text("Test"),
-                                                    // ),
                                                   ],
                                         ),
                                       ],
@@ -224,6 +248,89 @@ class _CreateListPageState extends State<CreateListPage> {
                                   ),
                                 ),
                               )
+                              .followedBy([
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Submit",
+                                      style:
+                                          Theme.of(
+                                            context,
+                                          ).textTheme.headlineMedium,
+                                    ),
+                                    Text("Items:"),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children:
+                                          items!
+                                              .map<Widget>(
+                                                (category) => Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children:
+                                                      category.items
+                                                          .where(
+                                                            (item) =>
+                                                                item.quantity >
+                                                                0,
+                                                          )
+                                                          .map(
+                                                            (item) => Text(
+                                                              item.name +
+                                                                  (item.quantity >
+                                                                          1
+                                                                      ? " (${item.quantity})"
+                                                                      : ""),
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                ),
+                                              )
+                                              .toList(),
+                                    ),
+                                    Spacer(),
+                                    FilledButton(
+                                      onPressed: () async {
+                                        var result =
+                                            await GroceryListController(
+                                              jwt: controller.jwt,
+                                            ).createList(items!);
+                                        if (result is RequestSuccess) {
+                                          if (context.mounted) {
+                                            Navigator.of(context).pop();
+                                          }
+                                        } else if (result is RequestError) {
+                                          Fluttertoast.showToast(
+                                            msg: result.error,
+                                          );
+                                        }
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Submit",
+                                            style: TextStyle(
+                                              fontStyle:
+                                                  Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge!
+                                                      .fontStyle,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.surface,
+                                            ),
+                                          ),
+                                          SizedBox.square(dimension: 10),
+                                          Icon(Icons.send),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ])
                               .toList(),
                       options: CarouselOptions(
                         enlargeCenterPage: true,
@@ -239,14 +346,14 @@ class _CreateListPageState extends State<CreateListPage> {
                       ),
                     ),
                     DotsIndicator(
-                      dotsCount: items?.length ?? 0,
+                      dotsCount: items!.length + 1,
                       position: _currentPage.toDouble(),
                       onTap:
                           (position) =>
                               carouselController.animateToPage(position),
 
                       decorator: DotsDecorator(
-                        activeColor: Colors.blue,
+                        activeColor: Theme.of(context).colorScheme.primary,
                         size: Size.square(8.0),
                         activeSize: Size.square(12.0),
                       ),

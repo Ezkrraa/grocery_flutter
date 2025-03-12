@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/grocery-list/grocery_list_controller.dart';
@@ -16,6 +17,9 @@ class GroceryListInfoPage extends StatefulWidget {
 
 class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
   late Map<String, List<GroceryListItemDisplay>>? items = null;
+  CarouselSliderController carouselSliderController =
+      CarouselSliderController();
+  int _currentPage = 0;
 
   Map<String, List<GroceryListItemDisplay>> sortInBuckets(
     List<GroceryListItemDisplay> items,
@@ -61,7 +65,9 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
               var result = await controller.deleteList(args.list.listId);
               if (result is RequestSuccess) {
                 if (context.mounted) {
-                  Navigator.of(context).popAndPushNamed('/home');
+                  Navigator.of(
+                    context,
+                  ).popAndPushNamed('/home', arguments: args.jwt);
                 }
               } else if (result is RequestError) {
                 Fluttertoast.showToast(msg: result.toString());
@@ -73,27 +79,52 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
           ),
         ],
       ),
-      body: CarouselSlider(
-        items:
-            items == null
-                ? const <Widget>[Center(child: Text("WIP"))]
-                : items!.entries
-                    .map(
-                      (entry) => Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
-                        child: CategoryView(items: entry),
+      body:
+          items == null
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  Expanded(
+                    child: CarouselSlider(
+                      items:
+                          items!.entries
+                              .map(
+                                (entry) => Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 15),
+                                  child: CategoryView(items: entry),
+                                ),
+                              )
+                              .toList(),
+                      options: CarouselOptions(
+                        scrollPhysics: PageScrollPhysics(),
+                        enlargeCenterPage: false,
+                        animateToClosest: false,
+                        viewportFraction: 0.95,
+                        height: 600,
+                        enableInfiniteScroll: false,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
                       ),
-                    )
-                    .toList(),
-        options: CarouselOptions(
-          scrollPhysics: PageScrollPhysics(),
-          enlargeCenterPage: false,
-          animateToClosest: false,
-          viewportFraction: 0.95,
-          height: 900,
-          enableInfiniteScroll: false,
-        ),
-      ),
+                    ),
+                  ),
+                  DotsIndicator(
+                    dotsCount: items?.length ?? 0,
+                    position: _currentPage.toDouble(),
+                    onTap:
+                        (position) =>
+                            carouselSliderController.animateToPage(position),
+
+                    decorator: DotsDecorator(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      size: Size.square(8.0),
+                      activeSize: Size.square(12.0),
+                    ),
+                  ),
+                ],
+              ),
     );
   }
 }
