@@ -44,7 +44,7 @@ class _ReceivedInvitesPageState extends State<ReceivedInvitesPage> {
           IconButton(
             onPressed: () async {
               await FlutterSecureStorage().delete(key: 'jwt');
-              Navigator.of(context).popAndPushNamed('/');
+              if (context.mounted) Navigator.of(context).popAndPushNamed('/');
             },
             icon: Icon(Icons.logout),
           ),

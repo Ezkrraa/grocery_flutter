@@ -10,6 +10,7 @@
 analyzer:
   errors:
     empty_constructor_bodies: ignore
+    avoid_init_to_null: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

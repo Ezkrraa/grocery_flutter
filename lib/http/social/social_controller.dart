@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grocery_flutter/http/auth/auth_controller.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
 import 'package:grocery_flutter/http/social/invite.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
@@ -9,7 +10,7 @@ import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:http/http.dart' as http;
 
 class SocialController {
-  static String baseUrl = "http://192.168.1.111:7020";
+  static const String baseUrl = AuthController.baseUrl;
   SocialController({required this.jwt});
 
   final String jwt;

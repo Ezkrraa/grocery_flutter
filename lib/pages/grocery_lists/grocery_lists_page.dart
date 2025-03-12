@@ -76,6 +76,12 @@ class _ViewGroceryListsPageState extends State<ViewGroceryListsPage> {
                       return Future(() => refresh(controller));
                     },
                   )),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.of(context).pushNamed('/create-list', arguments: jwt);
+        },
+      ),
     );
   }
 }

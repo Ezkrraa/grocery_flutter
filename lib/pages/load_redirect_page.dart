@@ -25,19 +25,21 @@ class _LoadRedirectPageState extends State<LoadRedirectPage> {
 
   Future<void> _checkLoginStatus() async {
     final savedJwt = await storage.read(key: 'jwt');
-    if (mounted) {
-      if (savedJwt == null) {
+    if (savedJwt == null) {
+      if (mounted) {
         Navigator.of(context).popAndPushNamed('/login');
-      } else {
-        if (!await AuthController.isValidToken(savedJwt)) {
-          storage.delete(key: 'jwt');
+      }
+    } else {
+      if (!await AuthController.isValidToken(savedJwt)) {
+        storage.delete(key: 'jwt');
+        if (mounted) {
           Navigator.of(context).popAndPushNamed('/login');
-        } else {
+        }
+      } else {
+        if (mounted) {
           Navigator.of(context).popAndPushNamed('/home', arguments: savedJwt);
         }
       }
-    } else {
-      throw Exception("Context was not mounted");
     }
   }
 }

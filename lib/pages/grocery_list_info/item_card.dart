@@ -20,7 +20,11 @@ class ItemCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const Icon(Icons.circle, size: 5),
-          Text(info.name + (info.quantity > 1 ? '(${info.quantity})' : '')),
+          Text(
+            overflow: TextOverflow.clip,
+            softWrap: false,
+            info.name + (info.quantity > 1 ? '(${info.quantity})' : ''),
+          ),
         ],
       ),
     );

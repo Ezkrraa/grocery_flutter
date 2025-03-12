@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/grocery-list/grocery_list_controller.dart';
@@ -59,7 +60,9 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
             onPressed: () async {
               var result = await controller.deleteList(args.list.listId);
               if (result is RequestSuccess) {
-                Navigator.of(context).popAndPushNamed('/home');
+                if (context.mounted) {
+                  Navigator.of(context).popAndPushNamed('/home');
+                }
               } else if (result is RequestError) {
                 Fluttertoast.showToast(msg: result.toString());
               } else {
@@ -70,20 +73,26 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
           ),
         ],
       ),
-      body: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(10),
-        children: [
-          Column(
-            spacing: 14,
-            children:
-                items == null
-                    ? const <Widget>[Center(child: Text("WIP"))]
-                    : items!.entries
-                        .map((entry) => CategoryView(items: entry))
-                        .toList(),
-          ),
-        ],
+      body: CarouselSlider(
+        items:
+            items == null
+                ? const <Widget>[Center(child: Text("WIP"))]
+                : items!.entries
+                    .map(
+                      (entry) => Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        child: CategoryView(items: entry),
+                      ),
+                    )
+                    .toList(),
+        options: CarouselOptions(
+          scrollPhysics: PageScrollPhysics(),
+          enlargeCenterPage: false,
+          animateToClosest: false,
+          viewportFraction: 0.95,
+          height: 900,
+          enableInfiniteScroll: false,
+        ),
       ),
     );
   }

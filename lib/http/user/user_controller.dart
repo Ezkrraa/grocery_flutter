@@ -1,9 +1,10 @@
+import 'package:grocery_flutter/http/auth/auth_controller.dart';
 import 'package:grocery_flutter/http/user/account_creation_model.dart';
 import 'package:grocery_flutter/http/user/account_creation_result.dart';
 import 'package:http/http.dart' as http;
 
 class UserController {
-  static const String baseUrl = "http://192.168.1.111:7020";
+  static const String baseUrl = AuthController.baseUrl;
 
   static Future<AccountCreationResult> createAccount(
     AccountCreationModel model,

@@ -44,7 +44,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 var result = await controller.leaveGroup();
                 if (result is RequestSuccess) {
                   Fluttertoast.showToast(msg: "Left your group");
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 } else if (result is RequestError) {
                   Fluttertoast.showToast(
                     msg: "Failed because '${result.error}'",

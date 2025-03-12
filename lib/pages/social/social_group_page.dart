@@ -50,7 +50,9 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
           IconButton(
             onPressed: () async {
               await FlutterSecureStorage().delete(key: 'jwt');
-              Navigator.of(context).popAndPushNamed('/');
+              if (context.mounted) {
+                Navigator.of(context).popAndPushNamed('/');
+              }
             },
             icon: Icon(Icons.logout),
           ),

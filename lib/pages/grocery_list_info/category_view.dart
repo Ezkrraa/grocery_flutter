@@ -13,12 +13,11 @@ class CategoryView extends StatelessWidget {
       spacing: 7,
       children:
           <Widget>[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    items.key,
-                  ),
+                Text(
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  items.key,
                 ),
               ]
               .followedBy(items.value.map((element) => ItemCard(info: element)))
