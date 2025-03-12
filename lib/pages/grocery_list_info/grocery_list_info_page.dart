@@ -86,6 +86,7 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
                 children: [
                   Expanded(
                     child: CarouselSlider(
+                      carouselController: carouselSliderController,
                       items:
                           items!.entries
                               .map(
