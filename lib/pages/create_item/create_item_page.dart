@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/item/create_item_model.dart';
 import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
+import 'package:grocery_flutter/pages/create_list/category_model.dart';
+import 'package:grocery_flutter/pages/create_list/create_list_args.dart';
+import 'package:grocery_flutter/pages/create_list/short_item.dart';
 
 class CreateItemPage extends StatefulWidget {
   const CreateItemPage({super.key});
@@ -18,12 +22,28 @@ class _CreateItemPageState extends State<CreateItemPage> {
     return value == null || value.isEmpty ? "Please enter a value" : null;
   }
 
-  submitItem(ItemController controller, CreateItemModel item) async {
+  submitItem(
+    ItemController controller,
+    CreateItemModel item,
+    CreateItemArgs args,
+  ) async {
     var result = await controller.createItem(item);
     if (mounted) {
-      if (result is RequestSuccess) {
+      if (result is RequestSuccess<String>) {
+        args.items!
+            .firstWhere((category) => category.id == item.categoryId)
+            .items
+            .add(ShortItem(id: result.result, name: item.name, quantity: 1));
         Navigator.of(context).pop();
-      } else if (result is RequestError) {
+        Navigator.of(context).popAndPushNamed(
+          '/create-list',
+          arguments: CreateListArgs(
+            jwt: args.jwt,
+            items: args.items,
+            index: args.index,
+          ),
+        );
+      } else if (result is RequestError<String>) {
         Fluttertoast.showToast(
           toastLength: Toast.LENGTH_LONG,
           msg:
@@ -74,6 +94,7 @@ class _CreateItemPageState extends State<CreateItemPage> {
                       categoryId: args.categoryId,
                       name: itemNameController.text,
                     ),
+                    args,
                   ),
 
               child: Text('Create'),

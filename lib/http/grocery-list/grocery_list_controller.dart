@@ -34,8 +34,8 @@ class GroceryListController {
         _ => RequestError(
           error:
               response.body.isEmpty
-                  ? "Returned with status code ${response.statusCode}, without a body"
-                  : "Returned with error code ${response.statusCode}: ${response.body}",
+                  ? "Status ${response.statusCode}: ${response.reasonPhrase}"
+                  : "Status ${response.statusCode}: ${response.body}",
         ),
       };
     } catch (error) {
@@ -65,8 +65,8 @@ class GroceryListController {
         _ => RequestError(
           error:
               response.body.isEmpty
-                  ? "Returned with status code ${response.statusCode}, without a body"
-                  : "Returned with error code ${response.statusCode}: ${response.body}",
+                  ? "Status ${response.statusCode}: ${response.reasonPhrase}"
+                  : "Status ${response.statusCode}: ${response.body}",
         ),
       };
     } catch (error) {
@@ -89,8 +89,8 @@ class GroceryListController {
         _ => RequestError(
           error:
               response.body.isEmpty
-                  ? "Returned with status code ${response.statusCode}, without a body"
-                  : "Returned with error code ${response.statusCode}: ${response.body}",
+                  ? "Status ${response.statusCode}: ${response.reasonPhrase}"
+                  : "Status ${response.statusCode}: ${response.body}",
         ),
       };
     } catch (error) {
@@ -127,8 +127,8 @@ class GroceryListController {
         _ => RequestError(
           error:
               response.body.isEmpty
-                  ? "Returned with status code ${response.statusCode}, without a body"
-                  : "Returned with error code ${response.statusCode}: ${response.body}",
+                  ? "Status ${response.statusCode}: ${response.reasonPhrase}"
+                  : "Status ${response.statusCode}: ${response.body}",
         ),
       };
     } catch (error) {

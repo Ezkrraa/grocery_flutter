@@ -21,7 +21,7 @@ class ItemCard extends StatelessWidget {
         children: [
           const Icon(Icons.circle, size: 5),
           Text(
-            overflow: TextOverflow.clip,
+            overflow: TextOverflow.ellipsis,
             softWrap: false,
             info.name + (info.quantity > 1 ? '(${info.quantity})' : ''),
           ),

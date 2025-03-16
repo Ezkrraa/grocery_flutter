@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/auth/auth_controller.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
 
 class LoadRedirectPage extends StatefulWidget {
   const LoadRedirectPage({super.key});
-
   @override
   State<LoadRedirectPage> createState() => _LoadRedirectPageState();
 }
 
 class _LoadRedirectPageState extends State<LoadRedirectPage> {
   static const storage = FlutterSecureStorage();
+  String statusMsg = "Loading JWT...";
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          ),
+          SizedBox.square(dimension: 10),
+          Text(statusMsg),
+        ],
+      ),
+    );
   }
 
   @override
@@ -30,15 +46,35 @@ class _LoadRedirectPageState extends State<LoadRedirectPage> {
         Navigator.of(context).popAndPushNamed('/login');
       }
     } else {
-      if (!await AuthController.isValidToken(savedJwt)) {
+      setState(() {
+        statusMsg = "Validating JWT...";
+      });
+      final result = await AuthController.isValidToken(savedJwt).timeout(
+        Duration(seconds: 7),
+        onTimeout:
+            () => Future.value(
+              RequestErrorConnectionError<void>(
+                "timed out while trying to validate token",
+              ),
+            ),
+      );
+      if (result is RequestSuccess) {
+        if (mounted) {
+          Navigator.of(context).popAndPushNamed('/home', arguments: savedJwt);
+        }
+      } else if (result is RequestErrorConnectionError) {
+        Fluttertoast.showToast(msg: "Connection error: ${result.error}");
+        if (mounted) {
+          Navigator.of(context).popAndPushNamed('/login');
+        }
+      } else if (result is RequestError) {
         storage.delete(key: 'jwt');
+        Fluttertoast.showToast(msg: result.error);
         if (mounted) {
           Navigator.of(context).popAndPushNamed('/login');
         }
       } else {
-        if (mounted) {
-          Navigator.of(context).popAndPushNamed('/home', arguments: savedJwt);
-        }
+        Fluttertoast.showToast(msg: "Unexpected type ${result.runtimeType}");
       }
     }
   }

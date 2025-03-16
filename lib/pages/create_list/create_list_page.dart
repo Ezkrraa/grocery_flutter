@@ -7,6 +7,7 @@ import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
 import 'package:grocery_flutter/pages/create_list/category_model.dart';
+import 'package:grocery_flutter/pages/create_list/create_list_args.dart';
 
 class CreateListPage extends StatefulWidget {
   const CreateListPage({super.key});
@@ -20,6 +21,7 @@ class _CreateListPageState extends State<CreateListPage> {
   late int _currentPage = 0;
   final CarouselSliderController carouselController =
       CarouselSliderController();
+  bool shouldJump = true;
 
   refresh(ItemController controller) {
     var result = controller.getItemsInGroup();
@@ -39,10 +41,23 @@ class _CreateListPageState extends State<CreateListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final jwt = ModalRoute.of(context)!.settings.arguments as String;
-    ItemController controller = ItemController(jwt: jwt);
-    if (items == null) {
+    final args = ModalRoute.of(context)!.settings.arguments as CreateListArgs;
+    ItemController controller = ItemController(jwt: args.jwt);
+    if (args.items != null && items == null) {
+      items = args.items;
+    } else if (items == null) {
       refresh(controller);
+    }
+    if (shouldJump && args.index == 0) {
+      setState(() => shouldJump = false);
+    }
+    if (shouldJump) {
+      carouselController.onReady.then<void>((_) {
+        carouselController.jumpToPage(args.index);
+        setState(() {
+          shouldJump = false;
+        });
+      });
     }
     return Scaffold(
       appBar: AppBar(
@@ -105,8 +120,10 @@ class _CreateListPageState extends State<CreateListPage> {
                                                 ).pushNamed(
                                                   '/create-item',
                                                   arguments: CreateItemArgs(
-                                                    jwt: jwt,
+                                                    jwt: args.jwt,
                                                     categoryId: category.id,
+                                                    items: items,
+                                                    index: _currentPage,
                                                   ),
                                                 );
                                                 refresh(controller);
@@ -186,6 +203,9 @@ class _CreateListPageState extends State<CreateListPage> {
                                                               Text(
                                                                 item.quantity
                                                                     .toString(),
+                                                                // overflow:
+                                                                //     TextOverflow
+                                                                //         .ellipsis,
                                                                 style:
                                                                     Theme.of(
                                                                           context,
@@ -345,17 +365,30 @@ class _CreateListPageState extends State<CreateListPage> {
                         },
                       ),
                     ),
-                    DotsIndicator(
-                      dotsCount: items!.length + 1,
-                      position: _currentPage.toDouble(),
-                      onTap:
-                          (position) =>
-                              carouselController.animateToPage(position),
+                    SizedBox.square(dimension: 12),
+                    Container(
+                      padding: EdgeInsets.all(2),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(11)),
+                        ),
+                        color:
+                            Theme.of(
+                              context,
+                            ).buttonTheme.colorScheme!.onSecondary,
+                      ),
+                      child: DotsIndicator(
+                        dotsCount: items!.length + 1,
+                        position: _currentPage.toDouble(),
+                        onTap:
+                            (position) =>
+                                carouselController.animateToPage(position),
 
-                      decorator: DotsDecorator(
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        size: Size.square(8.0),
-                        activeSize: Size.square(12.0),
+                        decorator: DotsDecorator(
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          size: Size.square(8.0),
+                          activeSize: Size.square(12.0),
+                        ),
                       ),
                     ),
                   ],

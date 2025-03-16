@@ -42,7 +42,7 @@ class ItemController {
     }
   }
 
-  Future<RequestResult<void>> createItem(CreateItemModel newItem) async {
+  Future<RequestResult<String>> createItem(CreateItemModel newItem) async {
     try {
       final url = Uri.parse("$baseUrl/api/item");
       final response = await http.post(
@@ -54,14 +54,14 @@ class ItemController {
         body: newItem.toJson(),
       );
       if (response.statusCode == 200) {
-        return RequestSuccess(result: null);
+        return RequestSuccess(result: response.body);
       }
       return RequestError(
         error:
             "Returned status ${response.statusCode} with message ${response.body}",
       );
     } catch (error) {
-      return RequestErrorConnectionError<void>(error.toString());
+      return RequestErrorConnectionError(error.toString());
     }
   }
 }

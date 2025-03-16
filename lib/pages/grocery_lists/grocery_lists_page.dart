@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/grocery-list/grocery_list_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
+import 'package:grocery_flutter/pages/create_list/create_list_args.dart';
 import 'package:grocery_flutter/pages/grocery_list_info/grocery_list_info_args.dart';
 import 'package:grocery_flutter/pages/grocery_lists/grocery_list_card.dart';
 import 'package:grocery_flutter/pages/grocery_lists/grocery_list_display.dart';
@@ -73,13 +74,19 @@ class _ViewGroceryListsPageState extends State<ViewGroceryListsPage> {
                       ],
                     ),
                     onRefresh: () {
-                      return Future(() => refresh(controller));
+                      return Future.delayed(
+                        Duration(milliseconds: 400),
+                        () => refresh(controller),
+                      );
                     },
                   )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          Navigator.of(context).pushNamed('/create-list', arguments: jwt);
+          Navigator.of(context).pushNamed(
+            '/create-list',
+            arguments: CreateListArgs(jwt: jwt, items: null),
+          );
         },
       ),
     );

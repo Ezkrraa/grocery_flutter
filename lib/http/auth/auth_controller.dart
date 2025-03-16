@@ -1,4 +1,5 @@
 import 'package:grocery_flutter/http/auth/login_model.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:http/http.dart' as http;
 
 class AuthController {
@@ -22,7 +23,7 @@ class AuthController {
     }
   }
 
-  static Future<bool> isValidToken(String jwt) async {
+  static Future<RequestResult<void>> isValidToken(String jwt) async {
     try {
       final uri = Uri.parse("$baseUrl/api/auth/check-token");
       final response = await http.get(
@@ -32,9 +33,17 @@ class AuthController {
           "Authorization": "Bearer $jwt",
         },
       );
-      return response.statusCode == 200;
+      return switch (response.statusCode) {
+        200 => RequestSuccess(result: null),
+        _ => RequestError(
+          error:
+              response.body.isEmpty
+                  ? "Status ${response.statusCode}: ${response.reasonPhrase}"
+                  : "Status ${response.statusCode}: ${response.body}",
+        ),
+      };
     } catch (error) {
-      return false;
+      return RequestErrorConnectionError(error.toString());
     }
   }
 }

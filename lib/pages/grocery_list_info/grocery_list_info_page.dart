@@ -98,7 +98,7 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
                               .toList(),
                       options: CarouselOptions(
                         scrollPhysics: PageScrollPhysics(),
-                        enlargeCenterPage: false,
+                        enlargeCenterPage: true,
                         animateToClosest: false,
                         viewportFraction: 0.95,
                         height: 600,
@@ -111,19 +111,32 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
                       ),
                     ),
                   ),
-                  DotsIndicator(
-                    dotsCount: items?.length ?? 0,
-                    position: _currentPage.toDouble(),
-                    onTap:
-                        (position) =>
-                            carouselSliderController.animateToPage(position),
+                  Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(11)),
+                      ),
+                      color:
+                          Theme.of(
+                            context,
+                          ).buttonTheme.colorScheme!.onSecondary,
+                    ),
+                    child: DotsIndicator(
+                      dotsCount: items?.length ?? 0,
+                      position: _currentPage.toDouble(),
+                      onTap:
+                          (position) =>
+                              carouselSliderController.animateToPage(position),
 
-                    decorator: DotsDecorator(
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      size: Size.square(8.0),
-                      activeSize: Size.square(12.0),
+                      decorator: DotsDecorator(
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        size: Size.square(8.0),
+                        activeSize: Size.square(12.0),
+                      ),
                     ),
                   ),
+                  SizedBox.square(dimension: 20),
                 ],
               ),
     );
