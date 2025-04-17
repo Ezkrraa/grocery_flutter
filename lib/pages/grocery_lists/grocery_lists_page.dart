@@ -47,7 +47,18 @@ class _ViewGroceryListsPageState extends State<ViewGroceryListsPage> {
           lists == null
               ? Center(child: CircularProgressIndicator())
               : (lists!.isEmpty
-                  ? const Center(child: Text("No lists were found"))
+                  ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_cart, size: 70),
+                        Text(
+                          "You haven't made any grocery lists yet",
+                          textScaler: TextScaler.linear(1.3),
+                        ),
+                      ],
+                    ),
+                  )
                   : RefreshIndicator(
                     child: ListView(
                       padding: EdgeInsets.all(10),

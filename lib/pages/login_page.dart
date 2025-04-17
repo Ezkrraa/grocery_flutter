@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/auth/auth_controller.dart';
 import 'package:grocery_flutter/http/auth/login_model.dart';
 
@@ -65,32 +66,23 @@ class _LoginPageState extends State<LoginPage> {
 
               FilledButton(
                 onPressed: () async {
-                  String? jwt = await AuthController.login(
+                  String? response = await AuthController.login(
                     LoginModel(
                       userName: emailController.text,
                       password: passwordController.text,
                     ),
                   );
                   if (!context.mounted) return;
-                  if (jwt == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Error connecting to server'),
-                        duration: Duration(seconds: 10),
-                      ),
-                    );
-                  } else if (jwt.length < 300 || !jwt.startsWith("ey")) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(jwt),
-                        duration: Duration(seconds: 10),
-                      ),
-                    );
+                  if (response == null) {
+                    Fluttertoast.showToast(msg: "Connection timed out");
+                  } else if (response.length < 300 ||
+                      !response.startsWith("ey")) {
+                    Fluttertoast.showToast(msg: response);
                   } else {
-                    storage.write(key: 'jwt', value: jwt);
+                    storage.write(key: 'jwt', value: response);
                     Navigator.of(
                       context,
-                    ).popAndPushNamed('/home', arguments: jwt);
+                    ).popAndPushNamed('/home', arguments: response);
                   }
                 },
                 child: const Text('Login'),

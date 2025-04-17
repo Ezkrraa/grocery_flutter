@@ -45,14 +45,21 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Login page'),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 150, horizontal: 20),
+      body: Container(
+        padding: EdgeInsets.all(20),
+        margin: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.all(Radius.circular(11)),
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 20,
           children: [
             Row(
               children: [
                 Text(
-                  'Enter a group name:',
+                  'Enter a group name',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ],

@@ -41,9 +41,7 @@ class _SocialHomePageState extends State<SocialHomePage> {
     }
     var controller = SocialController(jwt: jwt!);
     UserInfo? info = await controller.getMyInfo();
-    if (info == null) {
-      Fluttertoast.showToast(msg: 'Userinfo was null, tell the dev :(');
-    } else {
+    if (info != null) {
       setState(() {
         status = info.isInGroup ? 1 : 2;
       });

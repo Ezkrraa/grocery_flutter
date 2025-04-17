@@ -17,7 +17,7 @@ class AuthController {
       if (response.statusCode == 200) {
         return response.body;
       }
-      return 'Server returned a status ${response.statusCode.toRadixString(10)}';
+      return 'Server returned a status ${response.statusCode}';
     } catch (error) {
       return error.toString();
     }

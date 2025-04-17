@@ -9,6 +9,8 @@ import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/http/social/user_info.dart';
 import 'package:http/http.dart' as http;
 
+// TODO: Rework to use the RequestResult model
+
 class SocialController {
   static const String baseUrl = AuthController.baseUrl;
   SocialController({required this.jwt});
@@ -51,7 +53,7 @@ class SocialController {
 
       Fluttertoast.showToast(
         msg:
-            "Status code was ${response.statusCode}, jwt was ${jwt.length} characters long",
+            "Status ${response.statusCode} ${response.reasonPhrase}${response.body.isNotEmpty ? '"${response.body}"' : ''}",
       );
       return null;
     } catch (error) {

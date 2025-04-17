@@ -52,6 +52,7 @@ class GroceryListCard extends StatelessWidget {
               ),
               child: const Icon(Icons.shopping_cart, size: 64),
             ),
+            SizedBox.square(dimension: 12),
             Text(getDescription(DateTime.now().difference(info.createdTime))),
           ],
         ),

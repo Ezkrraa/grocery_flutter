@@ -1,11 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/item/create_item_model.dart';
 import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
-import 'package:grocery_flutter/pages/create_list/category_model.dart';
 import 'package:grocery_flutter/pages/create_list/create_list_args.dart';
 import 'package:grocery_flutter/pages/create_list/short_item.dart';
 
@@ -63,7 +61,7 @@ class _CreateItemPageState extends State<CreateItemPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Create new item'),
+        title: Text('New item'),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 150, horizontal: 20),
