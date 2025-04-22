@@ -91,7 +91,7 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
       ),
       body:
           groupInfo == null
-              ? Center(child: const Text('You are not in a group'))
+              ? Center(child: const CircularProgressIndicator())
               : Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 child: ListView(

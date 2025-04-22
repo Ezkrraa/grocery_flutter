@@ -12,7 +12,7 @@ class RecipeController {
 
   RecipeController({required this.jwt});
 
-  Future<RequestResult<List<RecipeInfo>>?> getAllRecipes() async {
+  Future<RequestResult<List<RecipeInfo>>> getAllRecipes() async {
     try {
       final uri = Uri.parse("$baseUrl/api/recipe");
       final response = await http.get(

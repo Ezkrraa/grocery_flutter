@@ -19,36 +19,34 @@ class _RecipesPageState extends State<RecipesPage> {
   late List<RecipeDisplay>? recipeDisplays = null;
 
   getRecipes(RecipeController controller) async {
-    final result = await controller.getAllRecipes();
-    if (result is RequestSuccess<List<RecipeInfo>?>) {
-      var recipes = (result as RequestSuccess<List<RecipeInfo>?>).result;
-      if (recipes != null) {
-        if (recipes.isNotEmpty) {
+    final RequestResult<List<RecipeInfo>> result =
+        await controller.getAllRecipes();
+    if (result is RequestSuccess<List<RecipeInfo>>) {
+      var recipes = result.result;
+      if (recipes.isEmpty) {
+        if (mounted) {
+          setState(() {
+            recipeDisplays = List.empty();
+          });
+        }
+      } else {
+        for (int i = 0; i < recipes.length; i++) {
+          final element = recipes[i];
+          Uint8List? img = null;
+          if (element.pictureName != null && element.pictureName!.isNotEmpty) {
+            RequestResult<Uint8List?> pictureResult = await controller
+                .getPicture(element.pictureName!);
+            if (pictureResult is RequestSuccess<Uint8List?>) {
+              img = pictureResult.result;
+            }
+          }
           if (mounted) {
             setState(() {
-              recipeDisplays = List.empty();
+              recipeDisplays ??= List<RecipeDisplay>.empty(growable: true);
+              recipeDisplays!.add(
+                RecipeDisplay(info: element, imageBytes: img),
+              );
             });
-          }
-        } else {
-          for (int i = 0; i < recipes.length; i++) {
-            final element = recipes[i];
-            Uint8List? img = null;
-            if (element.pictureName != null &&
-                element.pictureName!.isNotEmpty) {
-              RequestResult<Uint8List?> pictureResult = await controller
-                  .getPicture(element.pictureName!);
-              if (pictureResult is RequestSuccess<Uint8List?>) {
-                img = pictureResult.result;
-              }
-            }
-            if (mounted) {
-              setState(() {
-                recipeDisplays ??= List<RecipeDisplay>.empty(growable: true);
-                recipeDisplays!.add(
-                  RecipeDisplay(info: element, imageBytes: img),
-                );
-              });
-            }
           }
         }
       }
@@ -65,11 +63,11 @@ class _RecipesPageState extends State<RecipesPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (controller == null) {
-      String jwt = ModalRoute.of(context)!.settings.arguments as String;
-      controller = RecipeController(jwt: jwt);
-    }
     if (recipeDisplays == null) {
+      String jwt = ModalRoute.of(context)!.settings.arguments as String;
+      if (controller == null) {
+        setState(() => controller = RecipeController(jwt: jwt));
+      }
       getRecipes(controller!);
     }
     return Scaffold(

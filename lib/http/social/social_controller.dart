@@ -208,7 +208,7 @@ class SocialController {
           "Content-Type": "application/json",
           "Authorization": 'Bearer $jwt',
         },
-        body: invite.toJson(),
+        body: '"${invite.userId}"',
       );
       return switch (response.statusCode) {
         200 => RequestSuccess(result: null),

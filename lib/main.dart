@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grocery_flutter/pages/create_account_page.dart';
+import 'package:grocery_flutter/pages/create_category/create_category_page.dart';
 import 'package:grocery_flutter/pages/create_item/create_item_page.dart';
 import 'package:grocery_flutter/pages/create_list/create_list_page.dart';
 import 'package:grocery_flutter/pages/create_recipe/create_recipe_page.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         '/create-list': (context) => const CreateListPage(),
         '/create-item': (context) => const CreateItemPage(),
         '/create-recipe': (context) => const CreateRecipePage(),
+        '/create-category': (context) => const CreateCategoryPage(),
         //
         // '/test': (context) => const TestImagePickerPage(),
       },
