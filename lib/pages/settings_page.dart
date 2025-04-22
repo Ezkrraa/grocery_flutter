@@ -56,12 +56,22 @@ class _SettingsPageState extends State<SettingsPage> {
                             if (result is RequestSuccess) {
                               Fluttertoast.showToast(msg: "Left your group");
                               if (context.mounted) {
+                                // close popup
                                 Navigator.of(context).pop();
+                                // go back to home screen
+                                Navigator.of(context).pop();
+                                // swap home screen for invites screen automatically
+                                Navigator.of(
+                                  context,
+                                ).popAndPushNamed("/redirect-group");
                               }
                             } else if (result is RequestError) {
                               Fluttertoast.showToast(
                                 msg: "Failed because '${result.error}'",
                               );
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
                             }
                           }
                         },

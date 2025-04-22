@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                     storage.write(key: 'jwt', value: response);
                     Navigator.of(
                       context,
-                    ).popAndPushNamed('/home', arguments: response);
+                    ).popAndPushNamed('/redirect-group', arguments: response);
                   }
                 },
                 child: const Text('Login'),
