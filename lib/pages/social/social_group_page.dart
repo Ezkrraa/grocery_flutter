@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
-import 'package:grocery_flutter/pages/sent_invites_page.dart/sent_invites_args.dart';
+import 'package:grocery_flutter/pages/sent_invites_page/sent_invites_args.dart';
 import 'package:grocery_flutter/pages/social/person_card.dart';
 
 class SocialGroupPage extends StatefulWidget {
@@ -21,9 +21,13 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
     SocialController controller = SocialController(jwt: jwt);
     if (groupInfo == null) {
       controller.getOwnGroup().then(
-        (value) => setState(() {
-          groupInfo = value;
-        }),
+        (value) {
+          if (mounted) {
+            setState(() {
+              groupInfo = value;
+            });
+          }
+        },
         onError: (error) {
           throw Exception(error);
         },
@@ -49,10 +53,35 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
           ),
           IconButton(
             onPressed: () async {
-              await FlutterSecureStorage().delete(key: 'jwt');
-              if (context.mounted) {
-                Navigator.of(context).popAndPushNamed('/');
-              }
+              showDialog(
+                context: context,
+                builder: (ctx) {
+                  return AlertDialog(
+                    content: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text("Are you sure you want to log out?"),
+                    ),
+                    actions: [
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                      FilledButton(
+                        onPressed: () async {
+                          await FlutterSecureStorage().delete(key: 'jwt');
+                          if (ctx.mounted) {
+                            Navigator.of(ctx).pop();
+                            Navigator.of(ctx).popAndPushNamed('/');
+                          }
+                        },
+                        child: const Text("Log out"),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
             icon: Icon(Icons.logout),
           ),
@@ -62,7 +91,7 @@ class _SocialGroupPageState extends State<SocialGroupPage> {
       ),
       body:
           groupInfo == null
-              ? Center(child: const Text('Nothing to see here :('))
+              ? Center(child: const Text('You are not in a group'))
               : Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 child: ListView(

@@ -26,35 +26,88 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text('Settings'),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text("Jwt: $jwt"),
           FilledButton(
-            onPressed: () async {
-              if (mounted) {
-                var controller = SocialController(jwt: jwt);
-                var result = await controller.leaveGroup();
-                if (result is RequestSuccess) {
-                  Fluttertoast.showToast(msg: "Left your group");
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                } else if (result is RequestError) {
-                  Fluttertoast.showToast(
-                    msg: "Failed because '${result.error}'",
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) {
+                  return AlertDialog(
+                    content: const Text(
+                      "Are you sure you want to leave your group?",
+                    ),
+                    actions: [
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                      FilledButton(
+                        onPressed: () async {
+                          if (mounted) {
+                            var controller = SocialController(jwt: jwt);
+                            var result = await controller.leaveGroup();
+                            if (result is RequestSuccess) {
+                              Fluttertoast.showToast(msg: "Left your group");
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+                            } else if (result is RequestError) {
+                              Fluttertoast.showToast(
+                                msg: "Failed because '${result.error}'",
+                              );
+                            }
+                          }
+                        },
+                        child: const Text("Leave"),
+                      ),
+                    ],
                   );
-                }
-              }
+                },
+              );
             },
-            child: const Text('Leave group'),
+            child: const Text("Leave group"),
+          ),
+          FilledButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) {
+                  return AlertDialog(
+                    content: const Text(
+                      "Are you sure you want to delete your account?",
+                    ),
+                    actions: [
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                        child: const Text("No"),
+                      ),
+                      FilledButton(
+                        onPressed: () async {
+                          // TODO: Implement account deletion
+                          Fluttertoast.showToast(
+                            msg: "You got me, that doesn't do anything yet.",
+                          );
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: const Text("Yes, delete it"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Text("Delete account"),
           ),
         ],
       ),

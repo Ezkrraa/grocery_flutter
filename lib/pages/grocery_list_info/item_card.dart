@@ -19,11 +19,16 @@ class ItemCard extends StatelessWidget {
         spacing: 5,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Icon(Icons.circle, size: 5),
+          Text(
+            info.quantity.toString(),
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          SizedBox.fromSize(size: Size(15, 1)),
           Text(
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            info.name + (info.quantity > 1 ? '(${info.quantity})' : ''),
+            info.name,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],
       ),

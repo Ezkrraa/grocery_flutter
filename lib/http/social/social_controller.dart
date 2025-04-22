@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/auth/auth_controller.dart';
 import 'package:grocery_flutter/http/social/group_info.dart';
 import 'package:grocery_flutter/http/social/invite.dart';
@@ -36,7 +35,7 @@ class SocialController {
     }
   }
 
-  Future<UserInfo?> getMyInfo() async {
+  Future<RequestResult<UserInfo>> getMyInfo() async {
     try {
       final uri = Uri.parse("$baseUrl/api/user");
       final response = await http.get(
@@ -48,17 +47,15 @@ class SocialController {
       );
       if (response.statusCode == 200) {
         UserInfo info = UserInfo.fromJson(jsonDecode(response.body));
-        return info;
+        return RequestSuccess(result: info);
       }
 
-      Fluttertoast.showToast(
-        msg:
-            "Status ${response.statusCode} ${response.reasonPhrase}${response.body.isNotEmpty ? '"${response.body}"' : ''}",
+      return RequestError(
+        error:
+            "Status ${response.statusCode} ${response.reasonPhrase}${response.body.isNotEmpty ? ': "${response.body}"' : ''}",
       );
-      return null;
     } catch (error) {
-      Fluttertoast.showToast(msg: "Error was $error");
-      return null;
+      return RequestErrorConnectionError(error.toString());
     }
   }
 

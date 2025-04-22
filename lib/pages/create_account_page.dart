@@ -46,8 +46,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           pfp: pfpBytes!,
         ),
       ).timeout(
-        Duration(seconds: 3),
-        onTimeout: () => FailureResult(reason: "Timed out after 3 seconds"),
+        Duration(seconds: 20),
+        onTimeout: () => FailureResult(reason: "Timed out after 20 seconds"),
       );
       setState(() {
         isSending = false;
@@ -57,6 +57,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           Fluttertoast.showToast(msg: "Created an account successfully");
           Navigator.of(context).pop();
         } else if (result is FailureResult) {
+          showDialog(
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: const Text("Error after sending submit:"),
+                content: Text(result.reason),
+                actions: [
+                  FilledButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text("Ok"),
+                  ),
+                ],
+              );
+            },
+          );
           Fluttertoast.showToast(
             toastLength: Toast.LENGTH_LONG,
             msg: result.reason,
@@ -130,7 +145,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             cropFrameColor: Theme.of(context).colorScheme.onSecondaryContainer,
             cropFrameStrokeWidth: 5,
             // layered over everything outside selected circle
-            dimmedLayerColor: Color.fromRGBO(0, 0, 0, .4),
+            dimmedLayerColor: const Color.fromRGBO(0, 0, 0, .4),
 
             // just bg
             // backgroundColor: Color.fromRGBO(205, 127, 153, 1),
@@ -140,7 +155,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             cropStyle: CropStyle.circle,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
-            aspectRatioPresets: [CropAspectRatioPreset.square],
+            aspectRatioPresets: const [CropAspectRatioPreset.square],
             hideBottomControls: true,
           ),
         ],

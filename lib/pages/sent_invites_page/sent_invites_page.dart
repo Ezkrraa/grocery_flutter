@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/social/invite.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
 import 'package:grocery_flutter/http/social/social_controller.dart';
 import 'package:grocery_flutter/pages/invited_person/invited_person_card.dart';
-import 'package:grocery_flutter/pages/sent_invites_page.dart/sent_invites_args.dart';
+import 'package:grocery_flutter/pages/sent_invites_page/sent_invites_args.dart';
 
 class SentInvitesPage extends StatefulWidget {
   const SentInvitesPage({super.key});
@@ -39,28 +38,6 @@ class _SentInvitesPageState extends State<SentInvitesPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          !args.isInGroup
-              ? IconButton(
-                onPressed: () {
-                  Navigator.of(
-                    context,
-                  ).pushNamed('/create-group', arguments: args.jwt);
-                },
-                icon: Icon(Icons.add),
-              )
-              : SizedBox.shrink(),
-
-          IconButton(
-            onPressed: () async {
-              await FlutterSecureStorage().delete(key: 'jwt');
-              if (context.mounted) {
-                Navigator.of(context).popAndPushNamed('/');
-              }
-            },
-            icon: Icon(Icons.logout),
-          ),
-        ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Sent invites'),
       ),
@@ -124,6 +101,12 @@ class _SentInvitesPageState extends State<SentInvitesPage> {
         onRefresh: () {
           return Future(() => refresh(controller));
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed:
+            () =>
+                Navigator.of(context).pushNamed('/invite', arguments: args.jwt),
+        child: Icon(Icons.add),
       ),
     );
   }

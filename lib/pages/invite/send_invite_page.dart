@@ -19,9 +19,11 @@ class _SendInvitePageState extends State<SendInvitePage> {
   searchUsers(String item, SocialController controller) async {
     var users = await controller.getUsersByName(item);
     if (users == null) return;
-    setState(() {
-      foundUsers = users;
-    });
+    if (mounted) {
+      setState(() {
+        foundUsers = users;
+      });
+    }
   }
 
   @override

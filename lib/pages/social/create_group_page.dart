@@ -40,20 +40,15 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     final jwt = ModalRoute.of(context)!.settings.arguments as String;
     final controller = SocialController(jwt: jwt);
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Login page'),
+        title: Text('New group'),
       ),
-      body: Container(
+      body: Padding(
         padding: EdgeInsets.all(20),
-        margin: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.all(Radius.circular(11)),
-        ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           spacing: 20,
           children: [
             Row(
@@ -77,6 +72,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               onPressed: () => submitGroup(controller),
               child: Text('Create'),
             ),
+            SizedBox.square(dimension: 40),
           ],
         ),
       ),

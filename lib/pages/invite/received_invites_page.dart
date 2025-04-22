@@ -36,12 +36,6 @@ class _ReceivedInvitesPageState extends State<ReceivedInvitesPage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('/create-group', arguments: jwt);
-            },
-            icon: Icon(Icons.add),
-          ),
-          IconButton(
             onPressed: () async {
               await FlutterSecureStorage().delete(key: 'jwt');
               if (context.mounted) Navigator.of(context).popAndPushNamed('/');
@@ -52,60 +46,84 @@ class _ReceivedInvitesPageState extends State<ReceivedInvitesPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Your invites'),
       ),
-      body: Padding(
+      body: ListView(
         padding: EdgeInsets.all(10),
-        child: ListView(
-          children: [
-            Column(
-              children:
-                  invites == null
-                      ? [Text("You don't have any invites")]
-                      : invites!
-                          .map(
-                            (e) => InviteCard(
-                              invite: e,
-                              onAccept: () async {
-                                var result = await controller.acceptInvite(e);
-                                if (result is RequestSuccess) {
-                                  Fluttertoast.showToast(msg: 'Succes :D');
-                                } else if (result is RequestError) {
-                                  Fluttertoast.showToast(
-                                    msg:
-                                        'Error type: ${result.errorType()}, Error: ${result.error}',
-                                  );
-                                } else {
-                                  Fluttertoast.showToast(
-                                    msg: 'Something went horribly wrong here',
-                                  );
-                                  throw Exception("Impossible state occurred");
-                                }
+        children: [
+          Column(
+            spacing: 20,
+            children:
+                  invites == null || invites!.isEmpty
+                    ? <Widget>[
+                      Center(
+                        child: Center(
+                          child: Text(
+                            "You haven't been invited to any groups.",
+                          ),
+                        ),
+                      ),
+                    ]
+                    : invites!
+                        .map(
+                          (e) => InviteCard(
+                            invite: e,
+                            onAccept: () async {
+                              var result = await controller.acceptInvite(e);
+                              if (result is RequestSuccess) {
+                                Fluttertoast.showToast(msg: 'Succes :D');
+                              } else if (result is RequestError) {
+                                Fluttertoast.showToast(
+                                  msg:
+                                      'Error type: ${result.errorType()}, Error: ${result.error}',
+                                );
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: 'Something went horribly wrong here',
+                                );
+                                throw Exception("Impossible state occurred");
+                              }
 
-                                return;
-                              },
-                              onReject: () async {
-                                var result = await controller.rejectInvite(e);
-                                if (result is RequestSuccess) {
-                                  Fluttertoast.showToast(msg: 'Succes :D');
-                                } else if (result is RequestError) {
-                                  Fluttertoast.showToast(
-                                    msg:
-                                        'Error type: ${result.errorType()}, Error: ${result.error}',
-                                  );
-                                } else {
-                                  Fluttertoast.showToast(
-                                    msg: 'Something went horribly wrong here',
-                                  );
-                                  throw Exception("Impossible state occurred");
-                                }
+                              return;
+                            },
+                            onReject: () async {
+                              var result = await controller.rejectInvite(e);
+                              if (result is RequestSuccess) {
+                                Fluttertoast.showToast(msg: 'Succes :D');
+                                setState(() {
 
-                                return;
-                              },
-                            ),
-                          )
-                          .toList(),
+                                })
+                              } else if (result is RequestError) {
+                                Fluttertoast.showToast(
+                                  msg:
+                                      'Error type: ${result.errorType()}, Error: ${result.error}',
+                                );
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: 'Something went horribly wrong here',
+                                );
+                                throw Exception("Impossible state occurred");
+                              }
+
+                              return;
+                            },
+                          ),
+                        )
+                        .toList(),
+          ),
+          invites == null || invites!.isEmpty
+              ? SizedBox.shrink()
+              : SizedBox.square(dimension: 20),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: FilledButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pushNamed('/create-group', arguments: jwt);
+              },
+              child: const Text("Create a group"),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_flutter/pages/grocery_lists/grocery_lists_page.dart';
 import 'package:grocery_flutter/pages/recipes/recipes_page.dart';
-import 'package:grocery_flutter/pages/social/social_home_page.dart';
+import 'package:grocery_flutter/pages/social/social_group_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: switch (currentIndex) {
         0 => const ViewGroceryListsPage(),
         1 => const RecipesPage(),
-        2 => const SocialHomePage(),
+        2 => const SocialGroupPage(),
         _ => const Align(
           alignment: Alignment.center,
           child: Text('What happen??? :<<'),

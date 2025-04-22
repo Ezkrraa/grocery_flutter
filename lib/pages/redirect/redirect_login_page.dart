@@ -4,13 +4,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/auth/auth_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
 
-class LoadRedirectPage extends StatefulWidget {
-  const LoadRedirectPage({super.key});
+class RedirectLoginPage extends StatefulWidget {
+  const RedirectLoginPage({super.key});
   @override
-  State<LoadRedirectPage> createState() => _LoadRedirectPageState();
+  State<RedirectLoginPage> createState() => _RedirectLoginPageState();
 }
 
-class _LoadRedirectPageState extends State<LoadRedirectPage> {
+class _RedirectLoginPageState extends State<RedirectLoginPage> {
   static const storage = FlutterSecureStorage();
   String statusMsg = "Loading JWT...";
 
@@ -49,7 +49,9 @@ class _LoadRedirectPageState extends State<LoadRedirectPage> {
       setState(() {
         statusMsg = "Validating JWT...";
       });
-      final result = await AuthController.isValidToken(savedJwt).timeout(
+      final RequestResult<void> result = await AuthController.isValidToken(
+        savedJwt,
+      ).timeout(
         Duration(seconds: 7),
         onTimeout:
             () => Future.value(
@@ -60,7 +62,9 @@ class _LoadRedirectPageState extends State<LoadRedirectPage> {
       );
       if (result is RequestSuccess) {
         if (mounted) {
-          Navigator.of(context).popAndPushNamed('/home', arguments: savedJwt);
+          Navigator.of(
+            context,
+          ).popAndPushNamed('/redirect-group', arguments: savedJwt);
         }
       } else if (result is RequestErrorConnectionError) {
         Fluttertoast.showToast(msg: "Connection error: ${result.error}");
