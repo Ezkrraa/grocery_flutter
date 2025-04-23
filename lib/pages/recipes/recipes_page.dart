@@ -19,6 +19,9 @@ class _RecipesPageState extends State<RecipesPage> {
   late List<RecipeDisplay>? recipeDisplays = null;
 
   getRecipes(RecipeController controller) async {
+    if (mounted) {
+      setState(() => recipeDisplays = null);
+    }
     final RequestResult<List<RecipeInfo>> result =
         await controller.getAllRecipes();
     if (result is RequestSuccess<List<RecipeInfo>>) {
@@ -30,23 +33,32 @@ class _RecipesPageState extends State<RecipesPage> {
           });
         }
       } else {
+        setState(
+          () =>
+              recipeDisplays =
+                  recipes
+                      .map(
+                        (recipe) =>
+                            RecipeDisplay(info: recipe, imageBytes: null),
+                      )
+                      .toList(),
+        );
         for (int i = 0; i < recipes.length; i++) {
           final element = recipes[i];
-          Uint8List? img = null;
           if (element.pictureName != null && element.pictureName!.isNotEmpty) {
             RequestResult<Uint8List?> pictureResult = await controller
                 .getPicture(element.pictureName!);
             if (pictureResult is RequestSuccess<Uint8List?>) {
-              img = pictureResult.result;
-            }
-          }
-          if (mounted) {
-            setState(() {
-              recipeDisplays ??= List<RecipeDisplay>.empty(growable: true);
-              recipeDisplays!.add(
-                RecipeDisplay(info: element, imageBytes: img),
+              if (mounted) {
+                setState(() {
+                  recipeDisplays![i].imageBytes = pictureResult.result;
+                });
+              }
+            } else {
+              Fluttertoast.showToast(
+                msg: (pictureResult as RequestError).error,
               );
-            });
+            }
           }
         }
       }
@@ -63,8 +75,8 @@ class _RecipesPageState extends State<RecipesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final String jwt = ModalRoute.of(context)!.settings.arguments as String;
     if (recipeDisplays == null) {
-      String jwt = ModalRoute.of(context)!.settings.arguments as String;
       if (controller == null) {
         setState(() => controller = RecipeController(jwt: jwt));
       }
@@ -77,39 +89,73 @@ class _RecipesPageState extends State<RecipesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => Navigator.of(context).pushNamed("/create-recipe"),
+        onPressed:
+            () => Navigator.of(
+              context,
+            ).pushNamed("/create-recipe", arguments: jwt),
       ),
       body:
           recipeDisplays == null
               ? const Center(child: CircularProgressIndicator())
-              : recipeDisplays!.isEmpty
-              ? const Center(child: Text("You don't have any recipes"))
-              : ListView.separated(
-                padding: const EdgeInsets.all(5),
-                separatorBuilder:
-                    (c, i) => const SizedBox.square(dimension: 10),
-                itemCount: recipeDisplays?.length ?? 0,
+              : RefreshIndicator(
+                onRefresh: () => getRecipes(controller!),
+                child:
+                    recipeDisplays!.isEmpty
+                        ? const Center(
+                          child: Text("You don't have any recipes"),
+                        )
+                        : ListView.separated(
+                          padding: const EdgeInsets.all(5),
+                          separatorBuilder:
+                              (c, i) => const SizedBox.square(dimension: 10),
+                          itemCount: recipeDisplays?.length ?? 0,
 
-                itemBuilder: (context, index) {
-                  return RecipeListCard(
-                    info: recipeDisplays![index],
-                    onTap: () {
-                      // TODO: Navigate to a recipe view that lets you edit
-                      showBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [Icon(Icons.add), Text("Test")],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
+                          itemBuilder: (context, index) {
+                            return RecipeListCard(
+                              info: recipeDisplays![index],
+                              onTap: () {
+                                // TODO: Navigate to a recipe view that lets you edit
+                                showBottomSheet(
+                                  clipBehavior: Clip.hardEdge,
+                                  context: context,
+                                  builder: (context) {
+                                    final item = recipeDisplays![index];
+                                    return Padding(
+                                      padding: EdgeInsets.all(20),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [SizedBox.shrink()],
+                                          ),
+                                          item.imageBytes != null
+                                              ? ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Image.memory(
+                                                  item.imageBytes!,
+                                                  // width: 300,
+                                                  // height: 300,
+                                                ),
+                                              )
+                                              : const Text(
+                                                "No image was detected???",
+                                              ),
+
+                                          Icon(Icons.add),
+                                          Text(item.info.name),
+                                          Text(item.info.description),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
               ),
     );
   }

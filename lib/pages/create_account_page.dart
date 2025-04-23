@@ -31,7 +31,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   }
 
   final ImagePicker _picker = ImagePicker();
-
+  // TODO: warn user of unfilled fields
   submitForm() async {
     try {
       if (pfp == null) return;

@@ -17,9 +17,13 @@ class GroceryListItemDisplay {
     return GroceryListItemDisplay(
       id: item['id'],
       name: item['name'],
-      quantity: item['quantity'],
+      quantity: int.parse(item['quantity']),
       categoryId: item['categoryId'],
       categoryName: item['categoryName'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return Map.from({"ItemId": id, "Quantity": quantity});
   }
 }

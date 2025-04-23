@@ -3,10 +3,14 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:grocery_flutter/pages/grocery_list_info/item_card.dart';
+import 'package:grocery_flutter/http/item/item_controller.dart';
+import 'package:grocery_flutter/http/recipe-controller/create_recipe_model.dart';
+import 'package:grocery_flutter/http/recipe-controller/recipe_controller.dart';
+import 'package:grocery_flutter/http/social/request_result.dart';
+import 'package:grocery_flutter/pages/create_recipe/ingredient_card.dart';
+import 'package:grocery_flutter/pages/create_recipe/search_result_card.dart';
 import 'package:grocery_flutter/pages/grocery_lists/grocery_list_item_display.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uuid/v4.dart';
 
 class CreateRecipePage extends StatefulWidget {
   const CreateRecipePage({super.key});
@@ -18,27 +22,83 @@ class CreateRecipePage extends StatefulWidget {
 class _CreateRecipePageState extends State<CreateRecipePage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController stepsController = TextEditingController();
+  final TextEditingController instructionsController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  final _formKey = GlobalKey<FormState>();
 
   List<Uint8List> imageBytes = List.empty(growable: true);
   List<Image> imageViews = List.empty(growable: true);
 
-  final carouselController = CarouselSliderController();
-  List<GroceryListItemDisplay> items = List.generate(
-    20,
-    (i) => GroceryListItemDisplay(
-      id: UuidV4().toString(),
-      name: "Item #${i + 1}",
-      quantity: i,
-      categoryId: "",
-      categoryName: "Category ${i / 3}",
-    ),
+  List<GroceryListItemDisplay> ingredients = List.empty(growable: true);
+  List<GroceryListItemDisplay> searchIngredientsResults = List.empty(
+    growable: true,
   );
+
+  final carouselController = CarouselSliderController();
+
   int currentPage = 0;
 
-  submit() {
-    Fluttertoast.showToast(msg: nameController.text);
+  bool canSubmit() {
+    return (_formKey.currentState?.validate() ?? false) &&
+        ingredients.isNotEmpty;
+  }
+
+  Future<void> submit(RecipeController controller) async {
+    final response = await controller.createRecipe(
+      CreateRecipeModel(
+        name: nameController.text,
+        description: descriptionController.text,
+        instructions: instructionsController.text,
+        pictures: imageBytes,
+        items: ingredients,
+      ),
+    );
+    if (response is RequestSuccess) {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } else {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) {
+            return AlertDialog(
+              content: Text((response as RequestError).error),
+              actions: [
+                FilledButton(
+                  onPressed: () {
+                    if (ctx.mounted) {
+                      Navigator.of(ctx).pop();
+                    }
+                  },
+                  child: const Text("Ok"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  Future<void> search(ItemController itemController, String query) async {
+    final RequestResult<List<GroceryListItemDisplay>> result =
+        await itemController.searchItems(query);
+    if (result is RequestSuccess<List<GroceryListItemDisplay>>) {
+      if (mounted) {
+        setState(() {
+          searchIngredientsResults = result.result;
+        });
+      }
+    } else {
+      Fluttertoast.showToast(msg: (result as RequestError).error);
+    }
+  }
+
+  void unSearch() {
+    setState(() {
+      searchIngredientsResults = List.empty();
+    });
   }
 
   void showSelectImageSource() {
@@ -119,8 +179,45 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
     }
   }
 
+  void removeItem(GroceryListItemDisplay item) {
+    setState(() => ingredients.remove(item));
+  }
+
+  void addItem(GroceryListItemDisplay item) {
+    setState(() => ingredients.add(item));
+  }
+
+  void incrementItem(GroceryListItemDisplay item) {
+    setState(() {
+      final index = ingredients.indexWhere((i) => i.id == item.id);
+      ingredients[index] = GroceryListItemDisplay(
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity + 1,
+        categoryId: item.categoryId,
+        categoryName: item.categoryName,
+      );
+    });
+  }
+
+  void decrementItem(GroceryListItemDisplay item) {
+    setState(() {
+      final index = ingredients.indexWhere((i) => i.id == item.id);
+      ingredients[index] = GroceryListItemDisplay(
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity - 1,
+        categoryId: item.categoryId,
+        categoryName: item.categoryName,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final jwt = ModalRoute.of(context)!.settings.arguments as String;
+    final itemController = ItemController(jwt: jwt);
+    final recipeController = RecipeController(jwt: jwt);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -215,59 +312,142 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                 ),
               ],
             ),
-            Column(
-              spacing: 10,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: "Name",
-                  ),
-                ),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: "Description",
-                  ),
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 15,
-                  minLines: 1,
-                  controller: stepsController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: "Instructions",
-                  ),
-                ),
-
-                Container(
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(11)),
+            Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.onUnfocus,
+              child: Column(
+                spacing: 10,
+                children: [
+                  TextFormField(
+                    validator: (item) {
+                      if (item == null || item.isEmpty) {
+                        return "Name should not be empty";
+                      }
+                      return null;
+                    },
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      helperText: "Example text",
+                      border: UnderlineInputBorder(),
+                      labelText: "Name",
                     ),
-                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   ),
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    children:
-                        items.isEmpty
-                            ? [
-                              Text(
-                                "Ingredients:",
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
-                              ),
-                            ]
-                            : items
-                                .map<Widget>((item) => ItemCard(info: item))
-                                .toList(),
+                  TextFormField(
+                    controller: descriptionController,
+                    validator: (item) {
+                      if (item == null || item.isEmpty) {
+                        return "Give a short description of the recipe.";
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: "Description",
+                    ),
                   ),
-                ),
-                FilledButton(onPressed: () => submit(), child: Text("Leave")),
-              ],
+                  TextFormField(
+                    keyboardType: TextInputType.multiline,
+                    validator: (item) {
+                      if (item == null || item.isEmpty) {
+                        return "A recipe needs instructions :)";
+                      }
+                      return null;
+                    },
+                    maxLines: 15,
+                    minLines: 1,
+                    controller: instructionsController,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: "Instructions",
+                    ),
+                  ),
+
+                  Container(
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(11)),
+                      ),
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    ),
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      children:
+                          <Widget>[
+                                Text(
+                                  "Ingredients:",
+                                  style:
+                                      Theme.of(context).textTheme.headlineSmall,
+                                ),
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: "Search",
+                                    icon: Icon(Icons.search),
+                                  ),
+                                  onChanged: (value) {
+                                    if (value.isNotEmpty) {
+                                      search(itemController, value);
+                                    } else {
+                                      unSearch();
+                                    }
+                                  },
+                                ),
+                              ]
+                              .followedBy(
+                                searchIngredientsResults.isNotEmpty
+                                    ? searchIngredientsResults
+                                        .map<Widget>(
+                                          (e) => SearchResultCard(
+                                            info: e,
+                                            onAdd: () {
+                                              if (ingredients.any(
+                                                (element) => element.id == e.id,
+                                              )) {
+                                                final i = ingredients
+                                                    .indexWhere(
+                                                      (element) =>
+                                                          element.id == e.id,
+                                                    );
+                                                incrementItem(ingredients[i]);
+                                              } else {
+                                                addItem(e);
+                                              }
+                                              unSearch();
+                                            },
+                                          ),
+                                        )
+                                        .toList()
+                                    : ingredients.isEmpty
+                                    ? [
+                                      const Padding(
+                                        padding: EdgeInsets.all(15),
+                                        child: Text(
+                                          "You haven't selected any ingredients yet",
+                                        ),
+                                      ),
+                                    ]
+                                    : ingredients.map(
+                                      (e) => IngredientCard(
+                                        info: e,
+                                        onDecrement: () => decrementItem(e),
+                                        onIncrement: () => incrementItem(e),
+                                        onRemove: () => removeItem(e),
+                                      ),
+                                    ),
+                              )
+                              .toList(),
+                    ),
+                  ),
+                  canSubmit()
+                      ? FilledButton(
+                        onPressed: () => submit(recipeController),
+                        child: const Text("Submit"),
+                      )
+                      : FilledButton(
+                        onPressed: null,
+                        child: const Text("Submit"),
+                      ),
+                ],
+              ),
             ),
           ],
         ),

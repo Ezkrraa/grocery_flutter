@@ -12,7 +12,6 @@ class RecipeListCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(10),
         decoration: ShapeDecoration(
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(11)),
@@ -27,23 +26,30 @@ class RecipeListCard extends StatelessWidget {
               info.imageBytes == null
                   ? (const Icon(Icons.image, size: 90))
                   : ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    clipBehavior: Clip.hardEdge,
                     child: Image.memory(
                       info.imageBytes!,
                       width: 90,
                       height: 90,
                     ),
                   ),
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    info.info.name,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  Text(info.info.description),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Expanded(
+                    //   child:
+                    Text(
+                      overflow: TextOverflow.clip,
+                      softWrap: true,
+                      maxLines: 2,
+                      info.info.name,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Text(info.info.description),
+                  ],
+                ),
               ),
             ],
           ),
