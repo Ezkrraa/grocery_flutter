@@ -17,7 +17,7 @@ class GroceryListItemDisplay {
     return GroceryListItemDisplay(
       id: item['id'],
       name: item['name'],
-      quantity: int.parse(item['quantity']),
+      quantity: item['quantity'],
       categoryId: item['categoryId'],
       categoryName: item['categoryName'],
     );

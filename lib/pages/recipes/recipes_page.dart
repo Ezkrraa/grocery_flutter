@@ -153,6 +153,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                           Icon(Icons.add),
                                           Text(item.info.name),
                                           Text(item.info.description),
+                                          Text(item.info.steps),
                                         ],
                                       ),
                                     );
