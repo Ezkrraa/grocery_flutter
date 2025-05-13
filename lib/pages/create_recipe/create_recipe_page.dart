@@ -7,6 +7,7 @@ import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/recipe-controller/create_recipe_model.dart';
 import 'package:grocery_flutter/http/recipe-controller/recipe_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
+import 'package:grocery_flutter/pages/create_recipe/create_recipe_args.dart';
 import 'package:grocery_flutter/pages/create_recipe/ingredient_card.dart';
 import 'package:grocery_flutter/pages/create_recipe/search_result_card.dart';
 import 'package:grocery_flutter/pages/grocery_lists/grocery_list_item_display.dart';
@@ -33,6 +34,8 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
   List<GroceryListItemDisplay> searchIngredientsResults = List.empty(
     growable: true,
   );
+
+  late CreateRecipeArgs? args;
 
   final carouselController = CarouselSliderController();
 
@@ -213,11 +216,20 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
     });
   }
 
+  showCreateItem(ItemController controller) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return Column(children: [TextFormField(), const Text("Test")]);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final jwt = ModalRoute.of(context)!.settings.arguments as String;
-    final itemController = ItemController(jwt: jwt);
-    final recipeController = RecipeController(jwt: jwt);
+    args = ModalRoute.of(context)!.settings.arguments as CreateRecipeArgs;
+    final itemController = ItemController(jwt: args!.jwt);
+    final recipeController = RecipeController(jwt: args!.jwt);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -327,7 +339,6 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                     },
                     controller: nameController,
                     decoration: const InputDecoration(
-                      helperText: "Example text",
                       border: UnderlineInputBorder(),
                       labelText: "Name",
                     ),
@@ -378,18 +389,34 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                                   style:
                                       Theme.of(context).textTheme.headlineSmall,
                                 ),
-                                TextField(
-                                  decoration: InputDecoration(
-                                    hintText: "Search",
-                                    icon: Icon(Icons.search),
-                                  ),
-                                  onChanged: (value) {
-                                    if (value.isNotEmpty) {
-                                      search(itemController, value);
-                                    } else {
-                                      unSearch();
-                                    }
-                                  },
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        decoration: InputDecoration(
+                                          hintText: "Search",
+                                          icon: Icon(Icons.search),
+                                        ),
+                                        onChanged: (value) {
+                                          if (value.isNotEmpty) {
+                                            search(itemController, value);
+                                          } else {
+                                            unSearch();
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed(
+                                          "/create-recipe-item",
+                                          arguments: args!.jwt,
+                                        );
+                                      },
+                                      icon: Icon(Icons.add),
+                                    ),
+                                  ],
                                 ),
                               ]
                               .followedBy(

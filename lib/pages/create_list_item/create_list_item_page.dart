@@ -3,7 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/item/create_item_model.dart';
 import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
-import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
+import 'package:grocery_flutter/pages/create_list_item/create_list_item_args.dart';
 import 'package:grocery_flutter/pages/create_list/create_list_args.dart';
 import 'package:grocery_flutter/pages/create_list/short_item.dart';
 

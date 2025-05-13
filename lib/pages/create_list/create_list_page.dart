@@ -5,7 +5,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/grocery-list/grocery_list_controller.dart';
 import 'package:grocery_flutter/http/item/item_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
-import 'package:grocery_flutter/pages/create_item/create_item_args.dart';
+import 'package:grocery_flutter/pages/create_list/category_view.dart';
+import 'package:grocery_flutter/pages/create_list/short_item.dart';
+import 'package:grocery_flutter/pages/create_list_item/create_list_item_args.dart';
 import 'package:grocery_flutter/pages/create_list/category_model.dart';
 import 'package:grocery_flutter/pages/create_list/create_list_args.dart';
 
@@ -128,7 +130,7 @@ class _CreateListPageState extends State<CreateListPage> {
                                                 await Navigator.of(
                                                   context,
                                                 ).pushNamed(
-                                                  '/create-item',
+                                                  '/create-list-item',
                                                   arguments: CreateItemArgs(
                                                     jwt: args.jwt,
                                                     categoryId: category.id,
@@ -142,136 +144,17 @@ class _CreateListPageState extends State<CreateListPage> {
                                             ),
                                           ],
                                         ),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          spacing: 8,
-                                          children:
-                                              category.items.isNotEmpty
-                                                  ? category.items
-                                                      .map(
-                                                        (item) => Container(
-                                                          decoration: ShapeDecoration(
-                                                            color:
-                                                                item.quantity ==
-                                                                        0
-                                                                    ? Theme.of(
-                                                                          context,
-                                                                        )
-                                                                        .colorScheme
-                                                                        .onSecondary
-                                                                    : (item.quantity ==
-                                                                            1
-                                                                        ? Theme.of(
-                                                                          context,
-                                                                        ).colorScheme.secondaryContainer
-                                                                        : Theme.of(
-                                                                          context,
-                                                                        ).colorScheme.primaryContainer),
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    7,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                          child: Row(
-                                                            spacing: 8,
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            children: [
-                                                              IconButton(
-                                                                style: IconButton.styleFrom(
-                                                                  backgroundColor:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.surface,
-                                                                ),
-                                                                onPressed:
-                                                                    item.quantity >
-                                                                            0
-                                                                        ? () {
-                                                                          setState(() {
-                                                                            category.changeQuantity(
-                                                                              item,
-                                                                              item.quantity -
-                                                                                  1,
-                                                                            );
-                                                                          });
-                                                                        }
-                                                                        : null,
-                                                                icon: Icon(
-                                                                  Icons.remove,
-                                                                  color:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.onSurface,
-                                                                ),
-                                                              ),
-
-                                                              Text(
-                                                                item.quantity
-                                                                    .toString(),
-                                                                // overflow:
-                                                                //     TextOverflow
-                                                                //         .ellipsis,
-                                                                style:
-                                                                    Theme.of(
-                                                                          context,
-                                                                        )
-                                                                        .textTheme
-                                                                        .bodyLarge,
-                                                              ),
-                                                              IconButton(
-                                                                style: IconButton.styleFrom(
-                                                                  backgroundColor:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.secondary,
-                                                                ),
-                                                                onPressed: () {
-                                                                  setState(() {
-                                                                    category.changeQuantity(
-                                                                      item,
-                                                                      item.quantity +
-                                                                          1,
-                                                                    );
-                                                                  });
-                                                                },
-                                                                icon: Icon(
-                                                                  Icons.add,
-                                                                  color:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).colorScheme.surface,
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsets.only(
-                                                                      left: 5,
-                                                                    ),
-                                                                child: Text(
-                                                                  item.name,
-                                                                  style:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).textTheme.headlineSmall,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
+                                        CategoryView(
+                                          items: category.items,
+                                          changeQuantity:
+                                              (ShortItem item, int quantity) =>
+                                                  setState(
+                                                    () =>
+                                                        category.changeQuantity(
+                                                          item,
+                                                          quantity,
                                                         ),
-                                                      )
-                                                      .toList()
-                                                  : <Widget>[
-                                                    Center(
-                                                      child: Text(
-                                                        "No items are in this category yet :[",
-                                                      ),
-                                                    ),
-                                                  ],
+                                                  ),
                                         ),
                                       ],
                                     ),
@@ -319,7 +202,6 @@ class _CreateListPageState extends State<CreateListPage> {
                                               )
                                               .toList(),
                                     ),
-                                    Spacer(),
                                     FilledButton(
                                       onPressed: () async {
                                         var result =

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_flutter/http/recipe-controller/recipe_controller.dart';
 import 'package:grocery_flutter/http/social/request_result.dart';
+import 'package:grocery_flutter/pages/create_recipe/create_recipe_args.dart';
 import 'package:grocery_flutter/pages/recipes/recipe_display.dart';
 import 'package:grocery_flutter/pages/recipes/recipe_info.dart';
 import 'package:grocery_flutter/pages/recipes/recipe_list_card.dart';
@@ -90,9 +91,14 @@ class _RecipesPageState extends State<RecipesPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed:
-            () => Navigator.of(
-              context,
-            ).pushNamed("/create-recipe", arguments: jwt),
+            () => Navigator.of(context).pushNamed(
+              "/create-recipe",
+              arguments: CreateRecipeArgs(
+                jwt: jwt,
+                imageBytes: List.empty(growable: true),
+                ingredients: List.empty(growable: true),
+              ),
+            ),
       ),
       body:
           recipeDisplays == null
