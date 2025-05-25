@@ -82,6 +82,16 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
       body:
           items == null
               ? Center(child: CircularProgressIndicator())
+              : items?.isEmpty ?? true
+              ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.shopping_cart_outlined, size: 72),
+                    Text("Empty cart"),
+                  ],
+                ),
+              )
               : Column(
                 children: [
                   Expanded(
@@ -123,7 +133,10 @@ class _GroceryListInfoPageState extends State<GroceryListInfoPage> {
                           ).buttonTheme.colorScheme!.onSecondary,
                     ),
                     child: DotsIndicator(
-                      dotsCount: items?.length ?? 0,
+                      dotsCount:
+                          items != null && items!.isNotEmpty
+                              ? items!.length
+                              : 1,
                       position: _currentPage.toDouble(),
                       onTap:
                           (position) =>

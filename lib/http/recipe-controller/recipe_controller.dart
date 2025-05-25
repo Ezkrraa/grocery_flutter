@@ -51,7 +51,12 @@ class RecipeController {
       );
       return switch (response.statusCode) {
         200 => RequestSuccess(result: response.bodyBytes),
-        _ => RequestError(error: response.body),
+        _ => RequestError(
+          error:
+              response.body.isEmpty
+                  ? "${response.reasonPhrase}"
+                  : response.body,
+        ),
       };
     } catch (error) {
       return RequestError(error: error.toString());

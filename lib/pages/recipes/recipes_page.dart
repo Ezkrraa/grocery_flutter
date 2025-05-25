@@ -47,19 +47,21 @@ class _RecipesPageState extends State<RecipesPage> {
         for (int i = 0; i < recipes.length; i++) {
           final element = recipes[i];
           if (element.pictureName != null && element.pictureName!.isNotEmpty) {
-            RequestResult<Uint8List?> pictureResult = await controller
-                .getPicture(element.pictureName!);
-            if (pictureResult is RequestSuccess<Uint8List?>) {
-              if (mounted) {
-                setState(() {
-                  recipeDisplays![i].imageBytes = pictureResult.result;
-                });
+            Future.microtask(() async {
+              RequestResult<Uint8List?> pictureResult = await controller
+                  .getPicture(element.pictureName!);
+              if (pictureResult is RequestSuccess<Uint8List?>) {
+                if (mounted && recipeDisplays != null) {
+                  setState(() {
+                    recipeDisplays![i].imageBytes = pictureResult.result;
+                  });
+                }
+              } else {
+                Fluttertoast.showToast(
+                  msg: "Image error: ${(pictureResult as RequestError).error}",
+                );
               }
-            } else {
-              Fluttertoast.showToast(
-                msg: (pictureResult as RequestError).error,
-              );
-            }
+            });
           }
         }
       }
@@ -70,7 +72,7 @@ class _RecipesPageState extends State<RecipesPage> {
           recipeDisplays = List.empty();
         });
       }
-      Fluttertoast.showToast(msg: "Error $errorResult >:[");
+      Fluttertoast.showToast(msg: "Error '${errorResult.error}' >:[");
     }
   }
 

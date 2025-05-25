@@ -3,6 +3,6 @@ class LoginModel {
   final String userName;
   final String password;
   String toJson() {
-    return '{"userName": "$userName", "password": "$password"}';
+    return '{"Username": "$userName", "Password": "$password"}';
   }
 }
